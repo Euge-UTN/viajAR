@@ -1,18 +1,18 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Home from './pages/Home';
+import AppRoutes from './routes/AppRoutes';
 
 function App() {
   return (
     <BrowserRouter>
       <div className="flex flex-col min-h-screen bg-slate-50">
         <Navbar />
+
         <main className="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-          <Routes>
-            <Route path="/" element={<Home />} />
-          </Routes>
+          <AppRoutes />
         </main>
+
         <Footer />
       </div>
     </BrowserRouter>
