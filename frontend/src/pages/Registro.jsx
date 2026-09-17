@@ -5,6 +5,7 @@ export default function Registro() {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmarPassword, setConfirmarPassword] = useState('');
   const [errores, setErrores] = useState({});
   const navigate = useNavigate();
 
@@ -29,8 +30,15 @@ export default function Registro() {
     // Validar Contraseña
     if (!password) {
       nuevosErrores.password = 'La contraseña es obligatoria.';
-    } else if (password.length < 6) {
-      nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres.';
+    } else if (password.length < 8) {
+      nuevosErrores.password = 'La contraseña debe tener al menos 8 caracteres.';
+    }
+
+    // Validar Confirmación de Contraseña
+    if (!confirmarPassword) {
+      nuevosErrores.confirmarPassword = 'Debés confirmar la contraseña.';
+    } else if (confirmarPassword !== password) {
+      nuevosErrores.confirmarPassword = 'Las contraseñas no coinciden.';
     }
 
     setErrores(nuevosErrores);
@@ -90,6 +98,30 @@ export default function Registro() {
             }`}
           />
           {errores.password && <p className="text-xs text-red-500 mt-1">{errores.password}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">
+            Confirmar Contraseña
+          </label>
+
+          <input
+            type="password"
+            value={confirmarPassword}
+            onChange={(e) => setConfirmarPassword(e.target.value)}
+            placeholder="••••••••"
+            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+              errores.confirmarPassword
+                ? 'border-red-500 focus:ring-red-400'
+                : 'border-slate-300 focus:ring-sky-500'
+            }`}
+          />
+
+          {errores.confirmarPassword && (
+            <p className="text-xs text-red-500 mt-1">
+              {errores.confirmarPassword}
+            </p>
+          )}
         </div>
 
         <button 

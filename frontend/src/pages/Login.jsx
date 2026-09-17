@@ -21,8 +21,8 @@ export default function Login() {
     // Validar Contraseña
     if (!password) {
       nuevosErrores.password = 'La contraseña es obligatoria.';
-    } else if (password.length < 6) {
-      nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres.';
+    } else if (password.length < 8) {
+      nuevosErrores.password = 'La contraseña debe tener al menos 8 caracteres.';
     }
 
     setErrores(nuevosErrores);

@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 export default function Navbar() {
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const location = useLocation();
+  const mostrarBotones = location.pathname === '/home';
 
   return (
     <nav className="bg-slate-900 text-white shadow-md">
@@ -14,25 +16,23 @@ export default function Navbar() {
           
           {/* Menú de Escritorio */}
           <div className="hidden md:flex space-x-4 items-center text-sm font-medium">
-            <Link to="/" className="hover:text-sky-300 transition">Destinos</Link>
-            <Link to="/mis-viajes" className="hover:text-sky-300 transition">Mis Viajes</Link>
-            <Link to="/favoritos" className="hover:text-sky-300 transition">Favoritos</Link>
-            <Link to="/perfil" className="hover:text-sky-300 transition">Perfil</Link>
-            
-            <div className="flex items-center space-x-2 pl-2">
-              <Link 
-                to="/login" 
-                className="text-slate-200 hover:text-white px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 transition"
-              >
-                Iniciar Sesión
-              </Link>
-              <Link 
-                to="/registro" 
-                className="bg-sky-500 hover:bg-sky-600 px-3 py-1.5 rounded-lg text-white font-semibold transition shadow-sm"
-              >
-                Registrarse
-              </Link>
-            </div>
+            {mostrarBotones && (
+              <div className="flex items-center space-x-2">
+                <Link 
+                  to="/login" 
+                  className="text-slate-200 hover:text-white px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 transition"
+                >
+                  Iniciar Sesión
+                </Link>
+
+                <Link 
+                  to="/registro" 
+                  className="bg-sky-500 hover:bg-sky-600 px-3 py-1.5 rounded-lg text-white font-semibold transition shadow-sm"
+                >
+                  Registrarse
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Botón Menú para Móviles */}
@@ -54,28 +54,23 @@ export default function Navbar() {
       </div>
 
       {/* Menú Desplegable en Móviles */}
-      {menuAbierto && (
+      {menuAbierto && mostrarBotones && (
         <div className="md:hidden bg-slate-800 px-4 pt-2 pb-4 space-y-2 text-sm border-t border-slate-700">
-          <Link to="/" onClick={() => setMenuAbierto(false)} className="block py-2 hover:text-sky-300">Destinos</Link>
-          <Link to="/mis-viajes" onClick={() => setMenuAbierto(false)} className="block py-2 hover:text-sky-300">Mis Viajes</Link>
-          <Link to="/favoritos" onClick={() => setMenuAbierto(false)} className="block py-2 hover:text-sky-300">Favoritos</Link>
-          <Link to="/perfil" onClick={() => setMenuAbierto(false)} className="block py-2 hover:text-sky-300">Perfil</Link>
-          <div className="pt-2 border-t border-slate-700 flex flex-col space-y-2">
-            <Link 
-              to="/login" 
-              onClick={() => setMenuAbierto(false)}
-              className="text-center py-2 rounded-lg border border-slate-600 hover:bg-slate-700"
-            >
-              Iniciar Sesión
-            </Link>
-            <Link 
-              to="/registro" 
-              onClick={() => setMenuAbierto(false)}
-              className="text-center py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-semibold"
-            >
-              Registrarse
-            </Link>
-          </div>
+          <Link 
+            to="/login" 
+            onClick={() => setMenuAbierto(false)}
+            className="block text-center py-2 rounded-lg border border-slate-600 hover:bg-slate-700"
+          >
+            Iniciar Sesión
+          </Link>
+
+          <Link 
+            to="/registro" 
+            onClick={() => setMenuAbierto(false)}
+            className="block text-center py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-semibold"
+          >
+            Registrarse
+          </Link>
         </div>
       )}
     </nav>
