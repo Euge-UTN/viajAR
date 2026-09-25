@@ -35,57 +35,95 @@ export default function Login() {
       // Extrae la parte anterior al @ del email para usarla como nombre de usuario
       const nombreUsuario = email.split('@')[0];
       alert(`¡Bienvenido de nuevo, ${nombreUsuario}!`);
-      navigate('/');
+      navigate('/home');
     }
   };
 
   return (
-    <div className="max-w-md mx-auto my-10 p-6 bg-white rounded-xl shadow-md border border-slate-100">
-      <h2 className="text-2xl font-bold text-center text-slate-800 mb-6">Iniciar Sesión</h2>
-      
-      <form className="space-y-4" onSubmit={handleSubmit} noValidate>
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico</label>
-          <input 
-            type="email" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="tu@email.com" 
-            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-              errores.email ? 'border-red-500 focus:ring-red-400' : 'border-slate-300 focus:ring-sky-500'
-            }`}
-          />
-          {errores.email && <p className="text-xs text-red-500 mt-1">{errores.email}</p>}
+  <div className="min-h-[75vh] flex items-center justify-center bg-[#F7F9F8] px-4 py-10">
+    <div className="w-full max-w-md">
+
+      <div className="text-center mb-8">
+        <p className="text-sm font-semibold uppercase tracking-widest text-[#34675C] mb-3">
+          Bienvenido a ViajAR
+        </p>
+
+        <h1 className="text-3xl font-bold text-[#324851] mb-2">
+          Iniciar sesión
+        </h1>
+
+        <p className="text-[#46565A]">
+          Ingresá para continuar con tu viaje.
+        </p>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-[#7DA3A1] shadow-sm p-6 sm:p-8">
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+          <div>
+            <label className="block text-sm font-medium text-[#324851] mb-2">
+              Correo electrónico
+            </label>
+
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-xl border border-[#7DA3A1] px-4 py-3 text-[#324851] outline-none focus:border-[#34675C] focus:ring-2 focus:ring-[#7DA3A1]/30"
+              placeholder="Ingresá tu correo"
+            />
+
+            {errores.email && (
+              <p className="text-red-600 text-sm mt-2">
+                {errores.email}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#324851] mb-2">
+              Contraseña
+            </label>
+
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-xl border border-[#7DA3A1] px-4 py-3 text-[#324851] outline-none focus:border-[#34675C] focus:ring-2 focus:ring-[#7DA3A1]/30"
+              placeholder="Ingresá tu contraseña"
+            />
+
+            {errores.password && (
+              <p className="text-red-600 text-sm mt-2">
+                {errores.password}
+              </p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-[#86AC41] hover:bg-[#6F9635] text-white font-semibold rounded-xl py-3 transition shadow-sm"
+          >
+            Iniciar sesión
+          </button>
+
+        </form>
+
+        <div className="text-center mt-6">
+          <p className="text-[#46565A] text-sm">
+            ¿No tenés una cuenta?{" "}
+            <Link
+              to="/registro"
+              className="font-semibold text-[#34675C] hover:text-[#86AC41] transition"
+            >
+              Registrate
+            </Link>
+          </p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
-          <input 
-            type="password" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••" 
-            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-              errores.password ? 'border-red-500 focus:ring-red-400' : 'border-slate-300 focus:ring-sky-500'
-            }`}
-          />
-          {errores.password && <p className="text-xs text-red-500 mt-1">{errores.password}</p>}
-        </div>
-
-        <button 
-          type="submit" 
-          className="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 rounded-lg transition"
-        >
-          Ingresar
-        </button>
-      </form>
-
-      <p className="text-sm text-center text-slate-600 mt-4">
-        ¿No tenés cuenta?{' '}
-        <Link to="/registro" className="text-sky-500 hover:underline font-medium">
-          Registrate acá
-        </Link>
-      </p>
+      </div>
     </div>
-  );
+  </div>
+);
 }

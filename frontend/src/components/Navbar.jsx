@@ -7,10 +7,10 @@ export default function Navbar() {
   const mostrarBotones = location.pathname === '/home';
 
   return (
-    <nav className="bg-slate-900 text-white shadow-md">
+    <nav className="bg-[#3F5145] text-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="text-2xl font-bold text-sky-400">
+          <Link to="/" className="text-2xl font-bold text-white">
             ViajAR
           </Link>
           
@@ -20,14 +20,14 @@ export default function Navbar() {
               <div className="flex items-center space-x-2">
                 <Link 
                   to="/login" 
-                  className="text-slate-200 hover:text-white px-3 py-1.5 rounded-lg border border-slate-700 hover:bg-slate-800 transition"
+                  className="text-white hover:text-[#86AC41] px-4 py-2 rounded-xl border border-[#7DA3A1] hover:bg-[#34675C] transition"
                 >
                   Iniciar Sesión
                 </Link>
 
                 <Link 
                   to="/registro" 
-                  className="bg-sky-500 hover:bg-sky-600 px-3 py-1.5 rounded-lg text-white font-semibold transition shadow-sm"
+                  className="bg-[#86AC41] hover:bg-[#6F9635] px-4 py-2 rounded-xl text-white font-semibold transition shadow-sm"
                 >
                   Registrarse
                 </Link>
@@ -59,7 +59,7 @@ export default function Navbar() {
           <Link 
             to="/login" 
             onClick={() => setMenuAbierto(false)}
-            className="block text-center py-2 rounded-lg border border-slate-600 hover:bg-slate-700"
+            className="block text-center py-2 rounded-xl border border-[#7DA3A1] text-white hover:bg-[#34675C] transition"
           >
             Iniciar Sesión
           </Link>
@@ -67,7 +67,7 @@ export default function Navbar() {
           <Link 
             to="/registro" 
             onClick={() => setMenuAbierto(false)}
-            className="block text-center py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-semibold"
+            className="block text-center py-2 bg-[#86AC41] hover:bg-[#6F9635] text-white rounded-xl font-semibold transition"
           >
             Registrarse
           </Link>

@@ -54,90 +54,130 @@ export default function Registro() {
   };
 
   return (
-    <div className="max-w-md mx-auto my-10 p-6 bg-white rounded-xl shadow-md border border-slate-100">
-      <h2 className="text-2xl font-bold text-center text-slate-800 mb-6">Crear Cuenta</h2>
-      
-      <form className="space-y-4" onSubmit={handleSubmit} noValidate>
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Nombre Completo</label>
-          <input 
-            type="text" 
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            placeholder="Juan Pérez" 
-            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-              errores.nombre ? 'border-red-500 focus:ring-red-400' : 'border-slate-300 focus:ring-sky-500'
-            }`}
-          />
-          {errores.nombre && <p className="text-xs text-red-500 mt-1">{errores.nombre}</p>}
+  <div className="min-h-[75vh] flex items-center justify-center bg-[#F7F9F8] px-4 py-10">
+    <div className="w-full max-w-md">
+
+      <div className="text-center mb-8">
+        <p className="text-sm font-semibold uppercase tracking-widest text-[#34675C] mb-3">
+          Bienvenido a ViajAR
+        </p>
+
+        <h1 className="text-3xl font-bold text-[#324851] mb-2">
+          Crear cuenta
+        </h1>
+
+        <p className="text-[#46565A]">
+          Registrate para comenzar tu viaje.
+        </p>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-[#7DA3A1] shadow-sm p-6 sm:p-8">
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+
+          <div>
+            <label className="block text-sm font-medium text-[#324851] mb-2">
+              Nombre
+            </label>
+
+            <input
+              type="text"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              className="w-full rounded-xl border border-[#7DA3A1] px-4 py-3 text-[#324851] outline-none focus:border-[#34675C] focus:ring-2 focus:ring-[#7DA3A1]/30"
+              placeholder="Ingresá tu nombre"
+            />
+
+            {errores.nombre && (
+              <p className="text-red-600 text-sm mt-2">
+                {errores.nombre}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#324851] mb-2">
+              Correo electrónico
+            </label>
+
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-xl border border-[#7DA3A1] px-4 py-3 text-[#324851] outline-none focus:border-[#34675C] focus:ring-2 focus:ring-[#7DA3A1]/30"
+              placeholder="Ingresá tu correo"
+            />
+
+            {errores.email && (
+              <p className="text-red-600 text-sm mt-2">
+                {errores.email}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#324851] mb-2">
+              Contraseña
+            </label>
+
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-xl border border-[#7DA3A1] px-4 py-3 text-[#324851] outline-none focus:border-[#34675C] focus:ring-2 focus:ring-[#7DA3A1]/30"
+              placeholder="Ingresá tu contraseña"
+            />
+
+            {errores.password && (
+              <p className="text-red-600 text-sm mt-2">
+                {errores.password}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-[#324851] mb-2">
+              Confirmar contraseña
+            </label>
+
+            <input
+              type="password"
+              value={confirmarPassword}
+              onChange={(e) => setConfirmarPassword(e.target.value)}
+              className="w-full rounded-xl border border-[#7DA3A1] px-4 py-3 text-[#324851] outline-none focus:border-[#34675C] focus:ring-2 focus:ring-[#7DA3A1]/30"
+              placeholder="Repetí tu contraseña"
+            />
+
+            {errores.confirmarPassword && (
+              <p className="text-red-600 text-sm mt-2">
+                {errores.confirmarPassword}
+              </p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-[#86AC41] hover:bg-[#6F9635] text-white font-semibold rounded-xl py-3 transition shadow-sm"
+          >
+            Registrarse
+          </button>
+
+        </form>
+
+        <div className="text-center mt-6">
+          <p className="text-[#46565A] text-sm">
+            ¿Ya tenés una cuenta?{" "}
+            <Link
+              to="/login"
+              className="font-semibold text-[#34675C] hover:text-[#86AC41] transition"
+            >
+              Iniciá sesión
+            </Link>
+          </p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Correo Electrónico</label>
-          <input 
-            type="email" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="tu@email.com" 
-            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-              errores.email ? 'border-red-500 focus:ring-red-400' : 'border-slate-300 focus:ring-sky-500'
-            }`}
-          />
-          {errores.email && <p className="text-xs text-red-500 mt-1">{errores.email}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
-          <input 
-            type="password" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••" 
-            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-              errores.password ? 'border-red-500 focus:ring-red-400' : 'border-slate-300 focus:ring-sky-500'
-            }`}
-          />
-          {errores.password && <p className="text-xs text-red-500 mt-1">{errores.password}</p>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
-            Confirmar Contraseña
-          </label>
-
-          <input
-            type="password"
-            value={confirmarPassword}
-            onChange={(e) => setConfirmarPassword(e.target.value)}
-            placeholder="••••••••"
-            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-              errores.confirmarPassword
-                ? 'border-red-500 focus:ring-red-400'
-                : 'border-slate-300 focus:ring-sky-500'
-            }`}
-          />
-
-          {errores.confirmarPassword && (
-            <p className="text-xs text-red-500 mt-1">
-              {errores.confirmarPassword}
-            </p>
-          )}
-        </div>
-
-        <button 
-          type="submit" 
-          className="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-2 rounded-lg transition"
-        >
-          Registrarme
-        </button>
-      </form>
-
-      <p className="text-sm text-center text-slate-600 mt-4">
-        ¿Ya tenés cuenta?{' '}
-        <Link to="/login" className="text-sky-500 hover:underline font-medium">
-          Ingresá acá
-        </Link>
-      </p>
+      </div>
     </div>
-  );
+  </div>
+);
 }
