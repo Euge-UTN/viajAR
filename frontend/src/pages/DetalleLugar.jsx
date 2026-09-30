@@ -7,17 +7,6 @@ function DetalleLugar() {
     <div className="min-h-[75vh] bg-[#F7F9F8] -mx-4 -mt-4 px-4 py-10 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
 
-        {/* Encabezado */}
-        <div className="mb-8">
-          <p className="text-sm font-semibold uppercase tracking-widest text-[#34675C] mb-2">
-            Destino turístico
-          </p>
-
-          <h1 className="text-3xl sm:text-4xl font-bold text-[#324851]">
-            Detalle del lugar
-          </h1>
-        </div>
-
         {/* Imagen principal */}
         <div className="relative h-72 sm:h-96 rounded-3xl overflow-hidden">
             <img
