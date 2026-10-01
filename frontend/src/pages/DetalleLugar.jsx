@@ -1,11 +1,20 @@
+import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import cataratas from "../assets/cataratas.jpg";
 
 function DetalleLugar() {
+  const navigate = useNavigate();
   return (
-    <div className="min-h-[75vh] bg-[#F7F9F8] -mx-4 -mt-4 px-4 py-10 sm:px-6 lg:px-8">
+    <div className="min-h-[75vh] bg-[#F7F9F8] -mx-4 -mt-4 px-4 py-6 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-2 text-2xl font-medium text-[#324851] hover:text-[#34675C] transition"
+          aria-label="Volver"
+        >
+          ←
+        </button>
 
         {/* Imagen principal */}
         <div className="relative h-72 sm:h-96 rounded-3xl overflow-hidden">
@@ -79,6 +88,20 @@ function DetalleLugar() {
                 <p className="font-medium text-[#324851]">12 km/h</p>
                 </div>
             </div>
+
+            <button
+              onClick={() =>
+                navigate("/clima", {
+                  state: {
+                    lugar: "Cataratas del Iguazú",
+                    localidad: "Puerto Iguazú",
+                  },
+                })
+              }
+              className="mt-5 w-full rounded-xl bg-[#86AC41] px-4 py-3 font-semibold text-white hover:bg-[#6F9635] transition"
+            >
+              Consultar clima
+            </button>
             </div>
 
         </div>
