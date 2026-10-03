@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 export default function Navbar() {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const location = useLocation();
-  const mostrarBotones = location.pathname === '/home';
+  const mostrarBotones = location.pathname === '/' || location.pathname === '/home';
 
   return (
     <nav className="bg-[#3F5145] text-white shadow-sm">

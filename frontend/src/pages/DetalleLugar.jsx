@@ -10,10 +10,20 @@ function DetalleLugar() {
       <div className="max-w-6xl mx-auto">
         <button
           onClick={() => navigate(-1)}
-          className="mb-2 text-2xl font-medium text-[#324851] hover:text-[#34675C] transition"
+          className="inline-flex items-center gap-2 mb-6 px-3.5 py-2 rounded-xl bg-white border border-[#7DA3A1]/30 text-[#324851] text-sm font-semibold hover:bg-[#34675C] hover:text-white hover:border-[#34675C] shadow-sm hover:shadow transition-all duration-200 group"
           aria-label="Volver"
         >
-          ←
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            strokeWidth="2.5" 
+            stroke="currentColor" 
+            className="w-4 h-4 transition-transform group-hover:-translate-x-1"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+          <span>Volver</span>
         </button>
 
         {/* Imagen principal */}

@@ -1,5 +1,5 @@
 import { BrowserRouter, useLocation } from 'react-router-dom';
-import { useEffect } from "react";
+import { useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AppRoutes from './routes/AppRoutes';
@@ -7,6 +7,8 @@ import AppRoutes from './routes/AppRoutes';
 
 function AppContent() {
   const location = useLocation();
+
+  const [usuario, setUsuario] = useState(null);
   
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -14,12 +16,12 @@ function AppContent() {
 
   const mostrarNavbar = true;
 
-  return (
+return (
     <div className="flex flex-col min-h-screen bg-slate-50">
-      {mostrarNavbar && <Navbar />}
+      {mostrarNavbar && <Navbar usuario={usuario} setUsuario={setUsuario} />}
 
       <main className="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-        <AppRoutes />
+        <AppRoutes usuario={usuario} setUsuario={setUsuario} />
       </main>
 
       <Footer />
