@@ -60,6 +60,12 @@ export default function Registro({ setUsuario }) {
     }
   };
 
+  const limpiarError = (campo) => {
+    if (errores[campo]) {
+      setErrores((prev) => ({ ...prev, [campo]: null }));
+    }
+  };
+
   return (
     <div className="min-h-[75vh] flex items-center justify-center bg-[#F7F9F8] px-4 py-10">
       <div className="w-full max-w-md">
@@ -80,7 +86,7 @@ export default function Registro({ setUsuario }) {
 
         <div className="bg-white rounded-2xl border border-[#7DA3A1] shadow-sm p-6 sm:p-8">
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
 
             <div>
               <label className="block text-sm font-medium text-[#324851] mb-2">
@@ -89,7 +95,10 @@ export default function Registro({ setUsuario }) {
               <input
                 type="text"
                 value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
+                onChange={(e) => {
+                  setNombre(e.target.value);
+                  limpiarError('nombre');
+                }}
                 className="w-full rounded-xl border border-[#7DA3A1] px-4 py-3 text-[#324851] outline-none focus:border-[#34675C] focus:ring-2 focus:ring-[#7DA3A1]/30"
                 placeholder="Ingresá tu nombre"
               />
@@ -105,7 +114,10 @@ export default function Registro({ setUsuario }) {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  limpiarError('email');
+                }}
                 className="w-full rounded-xl border border-[#7DA3A1] px-4 py-3 text-[#324851] outline-none focus:border-[#34675C] focus:ring-2 focus:ring-[#7DA3A1]/30"
                 placeholder="Ingresá tu correo"
               />
@@ -122,7 +134,10 @@ export default function Registro({ setUsuario }) {
                 <input
                   type={mostrarPassword ? "text" : "password"}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    limpiarError('password');
+                  }}
                   className="w-full rounded-xl border border-[#7DA3A1] pl-4 pr-12 py-3 text-[#324851] outline-none focus:border-[#34675C] focus:ring-2 focus:ring-[#7DA3A1]/30"
                   placeholder="Ingresá tu contraseña"
                 />
@@ -157,7 +172,10 @@ export default function Registro({ setUsuario }) {
                 <input
                   type={mostrarConfirmar ? "text" : "password"}
                   value={confirmarPassword}
-                  onChange={(e) => setConfirmarPassword(e.target.value)}
+                  onChange={(e) => {
+                    setConfirmarPassword(e.target.value);
+                    limpiarError('confirmarPassword');
+                  }}
                   className="w-full rounded-xl border border-[#7DA3A1] pl-4 pr-12 py-3 text-[#324851] outline-none focus:border-[#34675C] focus:ring-2 focus:ring-[#7DA3A1]/30"
                   placeholder="Repetí tu contraseña"
                 />
@@ -186,7 +204,7 @@ export default function Registro({ setUsuario }) {
 
             <button
               type="submit"
-              className="w-full bg-[#86AC41] hover:bg-[#6F9635] text-white font-semibold rounded-xl py-3 transition shadow-sm"
+              className="w-full bg-[#86AC41] hover:bg-[#6F9635] text-white font-semibold rounded-xl py-3 transition shadow-sm cursor-pointer"
             >
               Registrarse
             </button>

@@ -8,11 +8,23 @@ export default function Login({ setUsuario }) {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // Función para validar el formato del correo electrónico
+  const validarEmail = (correo) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(correo);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (!email.trim() || !password.trim()) {
       setError('Por favor, completá todos los campos.');
+      return;
+    }
+
+    // Validación agregada de correo electrónico
+    if (!validarEmail(email)) {
+      setError('Ingresá un correo electrónico válido.');
       return;
     }
 
@@ -30,7 +42,7 @@ export default function Login({ setUsuario }) {
     <div className="min-h-[75vh] flex items-center justify-center bg-[#F7F9F8] px-4 py-10">
       <div className="w-full max-w-md">
 
-        {/* Encabezado restaurado */}
+        {/* Encabezado */}
         <div className="text-center mb-8">
           <p className="text-sm font-semibold uppercase tracking-widest text-[#34675C] mb-3">
             Bienvenido a ViajAR
@@ -47,13 +59,7 @@ export default function Login({ setUsuario }) {
 
         <div className="bg-white rounded-2xl border border-[#7DA3A1] shadow-sm p-6 sm:p-8">
 
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5" noValidate>
             <div>
               <label className="block text-sm font-medium text-[#324851] mb-2">
                 Correo electrónico
@@ -69,6 +75,9 @@ export default function Login({ setUsuario }) {
                 className="w-full rounded-xl border border-[#7DA3A1] px-4 py-3 text-[#324851] outline-none focus:border-[#34675C] focus:ring-2 focus:ring-[#7DA3A1]/30"
                 placeholder="Ingresá tu correo"
               />
+              {error && (
+                <p className="text-red-600 text-sm mt-2">{error}</p>
+              )}
             </div>
 
             <div>

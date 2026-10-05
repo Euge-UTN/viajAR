@@ -1,24 +1,29 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import iguazuImg from '../assets/cataratas.jpg';
 import peritoImg from '../assets/glaciar.jpg';
 import jujuyImg from '../assets/quebrada.jpg';
 import heroBgImg from '../assets/viaje.jpg';
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+
   const destinosDestacados = [
     {
+      id: 1,
       titulo: 'Cataratas del Iguazú',
       ubicacion: 'Misiones',
       imagen: iguazuImg,
       descripcion: 'Una de las siete maravillas naturales del mundo, rodeada de selva e imponentes saltos de agua.'
     },
     {
+      id: 2,
       titulo: 'Glaciar Perito Moreno',
       ubicacion: 'Santa Cruz',
       imagen: peritoImg,
       descripcion: 'Siente el rugido de los desprendimientos de hielo en pleno corazón de la Patagonia.'
     },
     {
+      id: 3,
       titulo: 'Quebrada de Humahuaca',
       ubicacion: 'Jujuy',
       imagen: jujuyImg,
@@ -43,7 +48,7 @@ export default function LandingPage() {
 
   return (
     <div className="space-y-12 py-4">
-      {/* Hero Section Redondeado */}
+      {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <section className="relative h-[75vh] min-h-[480px] flex items-center justify-center bg-slate-900 text-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200/10">
           <img
@@ -51,8 +56,6 @@ export default function LandingPage() {
             alt="Paisaje de Argentina"
             className="absolute inset-0 w-full h-full object-cover opacity-45"
           />
-          
-          {/* Sombra sutil interna para dar profundidad en los bordes */}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-900/30 to-slate-950/40"></div>
 
           <div className="relative z-10 max-w-4xl mx-auto text-center px-6">
@@ -66,12 +69,13 @@ export default function LandingPage() {
               Descubrí destinos increíbles, planificá tus recorridos y guardá todo lo importante para tu próximo viaje en un solo lugar.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              {/* Botón Comenzar que redirige a /home */}
               <Link
-                to="/registro"
+                to="/home"
                 className="bg-[#86AC41] hover:bg-[#6F9635] text-white font-semibold px-8 py-3.5 rounded-xl transition shadow-lg text-center"
-              >
+                >
                 Comenzar
-              </Link>
+                </Link>
               <Link
                 to="/login"
                 className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white font-semibold px-8 py-3.5 rounded-xl transition text-center"
@@ -83,7 +87,7 @@ export default function LandingPage() {
         </section>
       </div>
 
-      {/* Destinos Destacados */}
+      {/* Destinos Imperdibles */}
       <section className="max-w-7xl mx-auto px-6 py-12">
         <div className="text-center mb-14">
           <h2 className="text-3xl font-bold text-[#324851] tracking-tight">
@@ -94,11 +98,13 @@ export default function LandingPage() {
           </p>
         </div>
 
+        {/* Tarjetas que llevan a /destino/:id (DetalleLugar) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {destinosDestacados.map((destino, index) => (
-            <div
-              key={index}
-              className="group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition duration-300 flex flex-col"
+          {destinosDestacados.map((destino) => (
+            <Link
+              key={destino.id}
+              to={`/destino/${destino.id}`}
+              className="group bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition duration-300 flex flex-col cursor-pointer"
             >
               <div className="relative h-60 overflow-hidden">
                 <img
@@ -111,19 +117,19 @@ export default function LandingPage() {
                 </span>
               </div>
               <div className="p-6 flex flex-col flex-grow">
-                <h3 className="text-xl font-bold text-[#324851] mb-2">
+                <h3 className="text-xl font-bold text-[#324851] mb-2 group-hover:text-[#86AC41] transition">
                   {destino.titulo}
                 </h3>
                 <p className="text-slate-600 text-sm flex-grow leading-relaxed">
                   {destino.descripcion}
                 </p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
 
-      {/* Características del Sistema */}
+      {/* Características */}
       <section className="bg-slate-100 py-20 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-14">
