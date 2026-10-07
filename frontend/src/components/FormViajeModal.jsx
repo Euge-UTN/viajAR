@@ -69,7 +69,8 @@ export default function FormViajeModal({ isOpen, onClose, onSave, viajeEditar })
       fechaFin: formatFechaMostrar(formData.fechaFin),
       presupuestoTotal: Number(formData.presupuestoTotal),
       gastosActuales: viajeEditar ? viajeEditar.gastosActuales : 0,
-      itinerario: viajeEditar ? viajeEditar.itinerario : []
+      itinerario: viajeEditar ? viajeEditar.itinerario : [],
+      gastos: viajeEditar ? viajeEditar.gastos || [] : []
     });
 
     onClose();

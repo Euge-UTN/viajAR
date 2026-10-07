@@ -19,7 +19,11 @@ const viajesGuardados = localStorage.getItem('viajes');
     const viajeEncontrado = viajes.find((v) => v.id === Number(id));
 
     if (viajeEncontrado) {
-      return viajeEncontrado;
+      return {
+        ...viajeEncontrado,
+        gastos: viajeEncontrado.gastos || [],
+        itinerario: viajeEncontrado.itinerario || []
+      };
     }
   }
 
@@ -30,47 +34,86 @@ const viajesGuardados = localStorage.getItem('viajes');
   const [modalActividad, setModalActividad] = useState(false);
   const [modalGasto, setModalGasto] = useState(false);
   
-  const [nuevaActividad, setNuevaActividad] = useState({ diaIndex: 0, hora: '', descripcion: '', categoria: 'Excursión' });
-  const [nuevoGasto, setNuevoGasto] = useState({ concepto: '', categoria: 'Comida', monto: '' });
+  const [nuevaActividad, setNuevaActividad] = useState({ 
+    diaIndex: 0, hora: '', 
+    descripcion: '', 
+    categoria: 'Excursión',
+    costo: ''
+  });
+  const [nuevoGasto, setNuevoGasto] = useState({ 
+    concepto: '', 
+    categoria: 'Comida', 
+    monto: '' 
+  });
 
   const totalGastado = viaje.gastos.reduce((acc, g) => acc + Number(g.monto), 0);
   const saldoRestante = viaje.presupuestoTotal - totalGastado;
   const porcentajeEjecutado = Math.min(Math.round((totalGastado / viaje.presupuestoTotal) * 100), 100);
 
-  const handleAgregarActividad = (e) => {
-    e.preventDefault();
-    if (!nuevaActividad.descripcion.trim()) return;
+const handleAgregarActividad = (e) => {
+  e.preventDefault();
+  if (!nuevaActividad.descripcion.trim()) return;
 
-    const itinerarioActualizado = [...viaje.itinerario];
-    const diaObj = itinerarioActualizado[nuevaActividad.diaIndex];
+  const itinerarioActualizado = [...viaje.itinerario];
+  const diaObj = itinerarioActualizado[nuevaActividad.diaIndex];
 
-    if (diaObj) {
-      diaObj.actividades.push({
-        id: Date.now(),
-        hora: nuevaActividad.hora || '12:00',
-        descripcion: nuevaActividad.descripcion,
-        categoria: nuevaActividad.categoria
+  if (diaObj) {
+    const costoActividad = Number(nuevaActividad.costo) || 0;
+
+    diaObj.actividades.push({
+      id: Date.now(),
+      hora: nuevaActividad.hora || '12:00',
+      descripcion: nuevaActividad.descripcion,
+      categoria: nuevaActividad.categoria,
+      costo: costoActividad
+    });
+
+    const gastosActualizados = [...(viaje.gastos || [])];
+
+    if (costoActividad > 0) {
+      gastosActualizados.push({
+        id: Date.now() + 1,
+        concepto: nuevaActividad.descripcion,
+        categoria: nuevaActividad.categoria,
+        monto: costoActividad,
+        fecha: diaObj.fecha
       });
-
-      const viajeActualizado = {
-        ...viaje,
-        itinerario: itinerarioActualizado
-      };
-
-      setViaje(viajeActualizado);
-
-      const viajesGuardados = JSON.parse(localStorage.getItem('viajes')) || [];
-
-      const viajesActualizados = viajesGuardados.map((v) =>
-        v.id === viajeActualizado.id ? viajeActualizado : v
-      );
-
-      localStorage.setItem('viajes', JSON.stringify(viajesActualizados));
     }
 
-    setNuevaActividad({ diaIndex: 0, hora: '', descripcion: '', categoria: 'Excursión' });
-    setModalActividad(false);
-  };
+    const totalGastado = gastosActualizados.reduce(
+      (acc, gasto) => acc + Number(gasto.monto),
+      0
+    );
+
+    const viajeActualizado = {
+      ...viaje,
+      itinerario: itinerarioActualizado,
+      gastos: gastosActualizados,
+      gastosActuales: totalGastado
+    };
+
+    setViaje(viajeActualizado);
+
+    const viajesGuardados =
+      JSON.parse(localStorage.getItem('viajes')) || [];
+
+    const viajesActualizados = viajesGuardados.map((v) =>
+      v.id === viajeActualizado.id ? viajeActualizado : v
+    );
+
+    localStorage.setItem('viajes', JSON.stringify(viajesActualizados));
+  }
+
+  setNuevaActividad({
+    diaIndex: 0,
+    hora: '',
+    descripcion: '',
+    categoria: 'Excursión',
+    costo: ''
+  });
+
+  setModalActividad(false);
+};
 
   const handleAgregarGasto = (e) => {
     e.preventDefault();
@@ -202,40 +245,52 @@ const viajesGuardados = localStorage.getItem('viajes');
             </button>
           </div>
 
-          <div className="space-y-6">
-            {viaje.itinerario.map((diaObj, idx) => (
-              <div key={idx} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-                  <h3 className="text-lg font-bold text-[#324851]">
-                    Día {diaObj.dia} <span className="text-sm font-normal text-slate-500">({diaObj.fecha})</span>
-                  </h3>
-                  <span className="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-medium">
-                    {diaObj.actividades.length} actividades
-                  </span>
-                </div>
-
-                {diaObj.actividades.length === 0 ? (
-                  <p className="text-slate-400 text-sm italic">No hay actividades planificadas para este día.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {diaObj.actividades.map((act) => (
-                      <div key={act.id} className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
-                        <div className="flex items-center gap-3">
-                          <span className="text-xs font-bold text-[#34675C] bg-white px-2.5 py-1 rounded-lg border border-slate-200">
-                            {act.hora}
-                          </span>
-                          <span className="text-slate-700 text-sm font-medium">{act.descripcion}</span>
-                        </div>
-                        <span className="text-xs text-slate-500 bg-white px-2.5 py-1 rounded-full border border-slate-200">
-                          {act.categoria}
-                        </span>
-                      </div>
-                    ))}
+          {viaje.itinerario.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center shadow-sm">
+              <p className="text-slate-500 text-sm">
+                Todavía no hay actividades cargadas para este viaje.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {viaje.itinerario.map((diaObj, idx) => (
+                <div key={idx} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                    <h3 className="text-lg font-bold text-[#324851]">
+                      Día {diaObj.dia} <span className="text-sm font-normal text-slate-500">({diaObj.fecha})</span>
+                    </h3>
+                    <span className="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-medium">
+                      {diaObj.actividades.length} actividades
+                    </span>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+
+                  {diaObj.actividades.length === 0 ? (
+                    <p className="text-slate-400 text-sm italic">
+                      No hay actividades planificadas para este día.
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {diaObj.actividades.map((act) => (
+                        <div key={act.id} className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs font-bold text-[#34675C] bg-white px-2.5 py-1 rounded-lg border border-slate-200">
+                              {act.hora}
+                            </span>
+                            <span className="text-slate-700 text-sm font-medium">
+                              {act.descripcion}
+                            </span>
+                          </div>
+                          <span className="text-xs text-slate-500 bg-white px-2.5 py-1 rounded-full border border-slate-200">
+                            {act.categoria}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -336,6 +391,47 @@ const viajesGuardados = localStorage.getItem('viajes');
                   onChange={(e) => setNuevaActividad({ ...nuevaActividad, descripcion: e.target.value })}
                   className="w-full px-4 py-2 border rounded-xl"
                 />
+                <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Categoría
+                </label>
+
+                <select
+                  value={nuevaActividad.categoria}
+                  onChange={(e) =>
+                    setNuevaActividad({
+                      ...nuevaActividad,
+                      categoria: e.target.value
+                    })
+                  }
+                  className="w-full px-4 py-2 border rounded-xl"
+                >
+                  <option value="Alojamiento">Alojamiento</option>
+                  <option value="Transporte">Transporte</option>
+                  <option value="Comida">Comida</option>
+                  <option value="Excursión">Excursión</option>
+                  <option value="Otros">Otros</option>
+                </select>
+              </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Costo ($)
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    value={nuevaActividad.costo}
+                    onChange={(e) =>
+                      setNuevaActividad({
+                        ...nuevaActividad,
+                        costo: e.target.value
+                      })
+                    }
+                    placeholder="Ej: 25000"
+                    className="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#86AC41] focus:outline-none"
+                  />
+                </div>
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setModalActividad(false)} className="px-4 py-2 text-slate-600">Cancelar</button>

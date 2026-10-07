@@ -85,6 +85,7 @@ export default function MisViajes() {
   const [filtroEstado, setFiltroEstado] = useState('Todos');
   const [modalAbierto, setModalAbierto] = useState(false);
   const [viajeAEditar, setViajeAEditar] = useState(null);
+  const [viajeAEliminar, setViajeAEliminar] = useState(null);
   useEffect(() => {
     localStorage.setItem('viajes', JSON.stringify(viajes));
   }, [viajes]);
@@ -99,13 +100,55 @@ export default function MisViajes() {
     setModalAbierto(true);
   };
 
+  const eliminarViaje = (id) => {
+    const viajesActualizados = viajes.filter((viaje) => viaje.id !== id);
+
+    setViajes(viajesActualizados);
+    localStorage.setItem('viajes', JSON.stringify(viajesActualizados));
+    setViajeAEliminar(null);
+  };
+
+  const generarItinerario = (fechaInicio, fechaFin) => {
+  const [diaInicio, mesInicio, añoInicio] = fechaInicio.split('/');
+  const [diaFin, mesFin, añoFin] = fechaFin.split('/');
+
+  const inicio = new Date(añoInicio, mesInicio - 1, diaInicio);
+  const fin = new Date(añoFin, mesFin - 1, diaFin);
+
+  const itinerario = [];
+  let fechaActual = new Date(inicio);
+  let numeroDia = 1;
+
+  while (fechaActual <= fin) {
+    const dia = String(fechaActual.getDate()).padStart(2, '0');
+    const mes = String(fechaActual.getMonth() + 1).padStart(2, '0');
+    const año = fechaActual.getFullYear();
+
+    itinerario.push({
+      dia: numeroDia,
+      fecha: `${dia}/${mes}/${año}`,
+      actividades: []
+    });
+
+    fechaActual.setDate(fechaActual.getDate() + 1);
+    numeroDia++;
+  }
+
+  return itinerario;
+};
+
   const guardarViaje = (datosViaje) => {
     if (viajeAEditar) {
       setViajes(viajes.map(v => v.id === viajeAEditar.id ? { ...v, ...datosViaje } : v));
     } else {
       const nuevoViaje = {
         id: Date.now(),
-        ...datosViaje
+        ...datosViaje,
+        itinerario: generarItinerario(
+          datosViaje.fechaInicio,
+          datosViaje.fechaFin
+        ),
+        gastos: []
       };
       setViajes([...viajes, nuevoViaje]);
     }
@@ -250,6 +293,26 @@ export default function MisViajes() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13l-2.685.8a.75.75 0 01-.92-.92l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                   </svg>
                 </button>
+                <button
+                  onClick={() => setViajeAEliminar(viaje)}
+                  className="text-slate-400 hover:text-red-500 p-1 transition"
+                  title="Eliminar viaje"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.8}
+                    stroke="currentColor"
+                    className="w-4 h-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 7.5h12m-10.5 0v10.75A1.75 1.75 0 009.25 20h5.5a1.75 1.75 0 001.75-1.75V7.5m-7-3h4"
+                    />
+                  </svg>
+                </button>
               </div>
             </div>
           );
@@ -263,6 +326,68 @@ export default function MisViajes() {
         onSave={guardarViaje}
         viajeEditar={viajeAEditar}
       />
+
+      {viajeAEliminar && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div className="bg-white rounded-2xl p-6 max-w-md w-full border border-slate-200 shadow-xl">
+
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.8"
+                stroke="currentColor"
+                className="w-5 h-5 text-red-500"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m0 3.75h.008M10.29 3.86l-7.07 12.25A1.5 1.5 0 004.52 18.5h14.96a1.5 1.5 0 001.3-2.25L13.71 3.86a1.5 1.5 0 00-2.6 0z"
+                />
+              </svg>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-bold text-[#324851]">
+                Eliminar viaje
+              </h3>
+              <p className="text-sm text-slate-500">
+                Esta acción no se puede deshacer.
+              </p>
+            </div>
+          </div>
+
+          <p className="text-sm text-[#46565A] mb-6">
+            ¿Querés eliminar el viaje{' '}
+            <span className="font-semibold text-[#324851]">
+              {viajeAEliminar.titulo}
+            </span>
+            ?
+          </p>
+
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setViajeAEliminar(null)}
+              className="px-4 py-2 text-slate-600 rounded-xl hover:bg-slate-100 transition"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="button"
+              onClick={() => eliminarViaje(viajeAEliminar.id)}
+              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold transition"
+            >
+              Eliminar viaje
+            </button>
+          </div>
+
+        </div>
+      </div>
+    )}
     </div>
   );
 }

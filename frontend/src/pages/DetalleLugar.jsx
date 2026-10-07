@@ -1,10 +1,23 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import cataratas from "../assets/cataratas.jpg";
 
 function DetalleLugar() {
   const navigate = useNavigate();
+  const [modalItinerario, setModalItinerario] = useState(false);
+  const [viajes, setViajes] = useState([]);
+  const [viajeSeleccionado, setViajeSeleccionado] = useState(null);
+
+  const cargarViajes = () => {
+  const viajesGuardados = localStorage.getItem("viajes");
+
+  if (viajesGuardados) {
+    setViajes(JSON.parse(viajesGuardados));
+  }
+};
+
   return (
     <div className="min-h-[75vh] bg-[#F7F9F8] -mx-4 -mt-4 px-4 py-6 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
@@ -71,6 +84,15 @@ function DetalleLugar() {
               ofrecen diferentes recorridos para conocer el paisaje y disfrutar
               del entorno.
             </p>
+         <button
+            onClick={() => {
+              cargarViajes();
+              setModalItinerario(true);
+            }}
+            className="mt-5 px-5 py-3 rounded-xl bg-[#86AC41] text-white font-semibold hover:bg-[#6F9635] transition"
+          >
+            Agregar a mi itinerario
+          </button>
           </div>
 
           {/* Clima */}
@@ -259,7 +281,137 @@ function DetalleLugar() {
 
           </div>
         </div>
+        {modalItinerario && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full max-h-[85vh] overflow-y-auto border border-slate-200 shadow-xl">
+              
+              <h3 className="text-xl font-bold text-[#324851] mb-2">
+                Agregar a mi itinerario
+              </h3>
 
+              <p className="text-sm text-[#46565A] mb-5">
+                Seleccioná el viaje al que querés agregar este lugar.
+              </p>
+
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-slate-700">
+                  Mis viajes
+                </p>
+
+                {viajeSeleccionado ? (
+                  <div className="space-y-3">
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                      <p className="font-semibold text-[#324851]">
+                        {viajeSeleccionado.titulo}
+                      </p>
+
+                      <p className="text-sm text-slate-500 mt-1">
+                        Seleccioná el día para agregar este lugar.
+                      </p>
+                    </div>
+
+                    {viajeSeleccionado.itinerario?.map((dia, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          const viajesGuardados =
+                            JSON.parse(localStorage.getItem("viajes")) || [];
+
+                          const viajesActualizados = viajesGuardados.map((viaje) => {
+                            if (viaje.id !== viajeSeleccionado.id) {
+                              return viaje;
+                            }
+
+                            const itinerarioActualizado = viaje.itinerario.map((diaItinerario, i) => {
+                              if (i !== index) {
+                                return diaItinerario;
+                              }
+
+                              return {
+                                ...diaItinerario,
+                                actividades: [
+                                  ...(diaItinerario.actividades || []),
+                                  {
+                                    id: Date.now(),
+                                    hora: "12:00",
+                                    descripcion: "Cataratas del Iguazú",
+                                    categoria: "Excursión",
+                                    costo: 0
+                                  }
+                                ]
+                              };
+                            });
+
+                            return {
+                              ...viaje,
+                              itinerario: itinerarioActualizado
+                            };
+                          });
+
+                          localStorage.setItem("viajes", JSON.stringify(viajesActualizados));
+
+                          setViajes(viajesActualizados);
+                          setViajeSeleccionado(
+                            viajesActualizados.find((v) => v.id === viajeSeleccionado.id)
+                          );
+
+                          setModalItinerario(false);
+                          setViajeSeleccionado(null);
+                        }}
+                        className="w-full text-left bg-white border border-slate-200 rounded-xl p-4 hover:border-[#86AC41] hover:bg-[#F7F9F8] transition"
+                      >
+                        <p className="font-semibold text-[#324851]">
+                          Día {dia.dia}
+                        </p>
+
+                        <p className="text-sm text-slate-500 mt-1">
+                          {dia.fecha}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                ) : viajes.length === 0 ? (
+                  <p className="text-sm text-slate-500">
+                    No tenés viajes creados todavía.
+                  </p>
+                ) : (
+                  viajes.map((viaje) => (
+                    <div
+                      key={viaje.id}
+                      className="bg-slate-50 border border-slate-200 rounded-xl p-4"
+                    >
+                      <p className="font-semibold text-[#324851]">
+                        {viaje.titulo}
+                      </p>
+
+                      <p className="text-sm text-slate-500 mt-1">
+                        {viaje.destino}
+                      </p>
+
+                      <button
+                        onClick={() => setViajeSeleccionado(viaje)}
+                        className="mt-3 w-full px-4 py-2 bg-[#86AC41] text-white rounded-xl font-semibold hover:bg-[#6F9635] transition"
+                      >
+                        Seleccionar
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="flex justify-end mt-5">
+                <button
+                  type="button"
+                  onClick={() => setModalItinerario(false)}
+                  className="px-4 py-2 text-slate-600"
+                >
+                  Cancelar
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
