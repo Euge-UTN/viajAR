@@ -7,6 +7,7 @@ import DetalleLugar from "../pages/DetalleLugar";
 import Clima from "../pages/Clima";
 import MisViajes from '../pages/MisViajes';
 import DetalleViaje from '../pages/DetalleViaje';
+import Favoritos from '../pages/Favoritos';
 
 function AppRoutes({ usuario = null, setUsuario }) {
   return (
@@ -19,6 +20,7 @@ function AppRoutes({ usuario = null, setUsuario }) {
       <Route path="/clima" element={<Clima />} />
       <Route path="/mis-viajes" element={<MisViajes />} />
       <Route path="/mis-viajes/:id" element={<DetalleViaje />} />
+      <Route path="/favoritos" element={<Favoritos />} />
       <Route path="/destino/:id" element={<DetalleLugar />} />
       <Route path="/home" element={<Home />} />
     </Routes>
