@@ -311,63 +311,32 @@ function DetalleLugar() {
                     </div>
 
                     {viajeSeleccionado.itinerario?.map((dia, index) => (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          const viajesGuardados =
-                            JSON.parse(localStorage.getItem("viajes")) || [];
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setModalItinerario(false);
+                        setViajeSeleccionado(null);
 
-                          const viajesActualizados = viajesGuardados.map((viaje) => {
-                            if (viaje.id !== viajeSeleccionado.id) {
-                              return viaje;
+                        navigate(`/mis-viajes/${viajeSeleccionado.id}`, {
+                          state: {
+                            actividadPendiente: {
+                              diaIndex: index,
+                              descripcion: "Cataratas del Iguazú",
+                              categoria: "Excursión"
                             }
+                          }
+                        });
+                      }}
+                      className="w-full text-left bg-white border border-slate-200 rounded-xl p-4 hover:border-[#86AC41] hover:bg-[#F7F9F8] transition"
+                    >
+                      <p className="font-semibold text-[#324851]">
+                        Día {dia.dia}
+                      </p>
 
-                            const itinerarioActualizado = viaje.itinerario.map((diaItinerario, i) => {
-                              if (i !== index) {
-                                return diaItinerario;
-                              }
-
-                              return {
-                                ...diaItinerario,
-                                actividades: [
-                                  ...(diaItinerario.actividades || []),
-                                  {
-                                    id: Date.now(),
-                                    hora: "12:00",
-                                    descripcion: "Cataratas del Iguazú",
-                                    categoria: "Excursión",
-                                    costo: 0
-                                  }
-                                ]
-                              };
-                            });
-
-                            return {
-                              ...viaje,
-                              itinerario: itinerarioActualizado
-                            };
-                          });
-
-                          localStorage.setItem("viajes", JSON.stringify(viajesActualizados));
-
-                          setViajes(viajesActualizados);
-                          setViajeSeleccionado(
-                            viajesActualizados.find((v) => v.id === viajeSeleccionado.id)
-                          );
-
-                          setModalItinerario(false);
-                          setViajeSeleccionado(null);
-                        }}
-                        className="w-full text-left bg-white border border-slate-200 rounded-xl p-4 hover:border-[#86AC41] hover:bg-[#F7F9F8] transition"
-                      >
-                        <p className="font-semibold text-[#324851]">
-                          Día {dia.dia}
-                        </p>
-
-                        <p className="text-sm text-slate-500 mt-1">
-                          {dia.fecha}
-                        </p>
-                      </button>
+                      <p className="text-sm text-slate-500 mt-1">
+                        {dia.fecha}
+                      </p>
+                    </button>
                     ))}
                   </div>
                 ) : viajes.length === 0 ? (
