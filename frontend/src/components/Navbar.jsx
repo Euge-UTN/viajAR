@@ -38,6 +38,12 @@ export default function Navbar({ usuario, setUsuario }) {
               >
                 Favoritos
               </Link>
+              <Link
+                to="/perfil"
+                className="text-white hover:text-[#86AC41] px-4 py-2 rounded-xl transition font-semibold"
+              >
+                Perfil
+              </Link>
               <button
                 onClick={handleCerrarSesion}
                 className="text-slate-300 hover:text-red-400 px-3 py-2 rounded-xl transition"
@@ -101,6 +107,13 @@ export default function Navbar({ usuario, setUsuario }) {
                     className="block text-center py-2 text-white font-semibold hover:bg-[#3F5145] rounded-xl transition"
                   >
                     Favoritos
+                  </Link>
+                  <Link 
+                    to="/perfil" 
+                    onClick={() => setMenuAbierto(false)}
+                    className="block text-center py-2 text-white font-semibold hover:bg-[#3F5145] rounded-xl transition"
+                  >
+                    Perfil
                   </Link>
                   <button 
                     onClick={handleCerrarSesion}

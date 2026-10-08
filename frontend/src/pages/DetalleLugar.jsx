@@ -9,6 +9,10 @@ function DetalleLugar() {
   const [modalItinerario, setModalItinerario] = useState(false);
   const [viajes, setViajes] = useState([]);
   const [viajeSeleccionado, setViajeSeleccionado] = useState(null);
+  const [esVisitado, setEsVisitado] = useState(false);
+  const [modalReseña, setModalReseña] = useState(false);
+  const [puntuacion, setPuntuacion] = useState(5);
+  const [comentario, setComentario] = useState("");
   const [esFavorito, setEsFavorito] = useState(false);
 
   const cargarViajes = () => {
@@ -29,6 +33,18 @@ useEffect(() => {
   );
 
   setEsFavorito(favoritoExiste);
+}, []);
+
+useEffect(() => {
+  const lugaresVisitados = JSON.parse(
+    localStorage.getItem("lugaresVisitados") || "[]"
+  );
+
+  const lugarVisitado = lugaresVisitados.some(
+    (lugar) => lugar.nombre === "Cataratas del Iguazú"
+  );
+
+  setEsVisitado(lugarVisitado);
 }, []);
 
 const cambiarFavorito = () => {
@@ -69,6 +85,37 @@ const cambiarFavorito = () => {
     );
 
     setEsFavorito(true);
+  }
+};
+
+const marcarComoVisitado = () => {
+  const lugaresVisitados = JSON.parse(
+    localStorage.getItem("lugaresVisitados") || "[]"
+  );
+
+  const yaVisitado = lugaresVisitados.some(
+    (lugar) => lugar.nombre === "Cataratas del Iguazú"
+  );
+
+  if (!yaVisitado) {
+    const nuevoLugar = {
+      id: 1,
+      nombre: "Cataratas del Iguazú",
+      localidad: "Puerto Iguazú",
+      provincia: "Misiones"
+    };
+
+    const lugaresActualizados = [
+      ...lugaresVisitados,
+      nuevoLugar
+    ];
+
+    localStorage.setItem(
+      "lugaresVisitados",
+      JSON.stringify(lugaresActualizados)
+    );
+
+    setEsVisitado(true);
   }
 };
 
@@ -160,15 +207,37 @@ const cambiarFavorito = () => {
               ofrecen diferentes recorridos para conocer el paisaje y disfrutar
               del entorno.
             </p>
-         <button
-            onClick={() => {
-              cargarViajes();
-              setModalItinerario(true);
-            }}
-            className="mt-5 px-5 py-3 rounded-xl bg-[#86AC41] text-white font-semibold hover:bg-[#6F9635] transition"
-          >
-            Agregar a mi itinerario
-          </button>
+            <div className="mt-5 flex flex-wrap gap-3">
+
+              <button
+                onClick={() => {
+                  cargarViajes();
+                  setModalItinerario(true);
+                }}
+                className="px-5 py-3 rounded-xl bg-[#86AC41] text-white font-semibold hover:bg-[#6F9635] transition"
+              >
+                Agregar a mi itinerario
+              </button>
+
+              {!esVisitado ? (
+                <button
+                  type="button"
+                  onClick={marcarComoVisitado}
+                  className="px-5 py-3 rounded-xl bg-white border border-[#7DA3A1]/50 text-[#34675C] font-semibold hover:bg-[#34675C] hover:text-white transition"
+                >
+                  Marcar como visitado
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setModalReseña(true)}
+                  className="px-5 py-3 rounded-xl bg-[#34675C] text-white font-semibold hover:bg-[#2B574E] transition"
+                >
+                  ✓ Lugar visitado · Escribir reseña
+                </button>
+              )}
+
+            </div>
           </div>
 
           {/* Clima */}
@@ -451,6 +520,113 @@ const cambiarFavorito = () => {
                   className="px-4 py-2 text-slate-600"
                 >
                   Cancelar
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
+        {modalReseña && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full border border-slate-200 shadow-xl">
+
+              <h3 className="text-xl font-bold text-[#324851] mb-1">
+                Escribir reseña
+              </h3>
+
+              <p className="text-sm text-[#46565A] mb-5">
+                Compartí tu experiencia en Cataratas del Iguazú.
+              </p>
+
+              <div className="mb-5">
+                <label className="block text-sm font-semibold text-[#324851] mb-2">
+                  ¿Cómo calificás tu experiencia?
+                </label>
+
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((estrella) => (
+                    <button
+                      key={estrella}
+                      type="button"
+                      onClick={() => setPuntuacion(estrella)}
+                      className={`text-3xl transition ${
+                        estrella <= puntuacion
+                          ? "text-[#86AC41]"
+                          : "text-slate-300"
+                      }`}
+                      aria-label={`${estrella} estrellas`}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <label
+                  htmlFor="comentario"
+                  className="block text-sm font-semibold text-[#324851] mb-2"
+                >
+                  Comentario
+                </label>
+
+                <textarea
+                  id="comentario"
+                  value={comentario}
+                  onChange={(e) => setComentario(e.target.value)}
+                  placeholder="Contanos qué te pareció el lugar..."
+                  rows="4"
+                  className="w-full px-4 py-3 rounded-xl border border-[#7DA3A1]/40 focus:outline-none focus:ring-2 focus:ring-[#86AC41]/40 resize-none text-sm"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModalReseña(false);
+                    setComentario("");
+                    setPuntuacion(5);
+                  }}
+                  className="px-4 py-2 text-slate-600 hover:text-slate-800 transition"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!comentario.trim()) return;
+
+                    const reseñasGuardadas = JSON.parse(
+                      localStorage.getItem("reseñas") || "[]"
+                    );
+
+                    const nuevaReseña = {
+                      id: Date.now(),
+                      lugar: "Cataratas del Iguazú",
+                      puntuacion,
+                      comentario: comentario.trim(),
+                      fecha: new Date().toLocaleDateString("es-AR")
+                    };
+
+                    const reseñasActualizadas = [
+                      ...reseñasGuardadas,
+                      nuevaReseña
+                    ];
+
+                    localStorage.setItem(
+                      "reseñas",
+                      JSON.stringify(reseñasActualizadas)
+                    );
+
+                    setComentario("");
+                    setPuntuacion(5);
+                    setModalReseña(false);
+                  }}
+                  className="px-4 py-2 bg-[#86AC41] hover:bg-[#6F9635] text-white rounded-xl font-semibold transition"
+                >
+                  Publicar reseña
                 </button>
               </div>
 
