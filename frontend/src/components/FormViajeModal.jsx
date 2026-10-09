@@ -180,7 +180,6 @@ export default function FormViajeModal({ isOpen, onClose, onSave, viajeEditar })
               >
                 <option value="Planificado">Planificado</option>
                 <option value="En curso">En curso</option>
-                <option value="Finalizado">Finalizado</option>
               </select>
             </div>
           </div>

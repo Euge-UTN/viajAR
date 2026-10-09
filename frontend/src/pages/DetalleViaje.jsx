@@ -35,6 +35,7 @@ const viajesGuardados = localStorage.getItem('viajes');
   const [pestanaActiva, setPestanaActiva] = useState('itinerario');
   const [modalActividad, setModalActividad] = useState(false);
   const [modalGasto, setModalGasto] = useState(false);
+  const [modalFinalizar, setModalFinalizar] = useState(false);
   const [actividadAEditar, setActividadAEditar] = useState(null);
   const [actividadAEliminar, setActividadAEliminar] = useState(null);
   const [gastoAEditar, setGastoAEditar] = useState(null);
@@ -53,7 +54,7 @@ const viajesGuardados = localStorage.getItem('viajes');
   });
 
   useEffect(() => {
-    if (actividadPendiente) {
+   if (actividadPendiente && viaje?.estado !== 'Finalizado') {
       setNuevaActividad({
         diaIndex: actividadPendiente.diaIndex,
         hora: '',
@@ -66,12 +67,34 @@ const viajesGuardados = localStorage.getItem('viajes');
     }
   }, [actividadPendiente]);
 
+  const finalizarViaje = () => {
+  const viajeActualizado = {
+    ...viaje,
+    estado: 'Finalizado'
+  };
+
+  setViaje(viajeActualizado);
+
+  const viajesGuardados =
+    JSON.parse(localStorage.getItem('viajes')) || [];
+
+  const viajesActualizados = viajesGuardados.map((v) =>
+    v.id === viajeActualizado.id ? viajeActualizado : v
+  );
+
+  localStorage.setItem('viajes', JSON.stringify(viajesActualizados));
+  setModalFinalizar(false);
+};
+
   const totalGastado = viaje.gastos.reduce((acc, g) => acc + Number(g.monto), 0);
   const saldoRestante = viaje.presupuestoTotal - totalGastado;
-  const porcentajeEjecutado = Math.min(Math.round((totalGastado / viaje.presupuestoTotal) * 100), 100);
+  const porcentajeEjecutado = viaje.presupuestoTotal > 0
+  ? Math.min(Math.round((totalGastado / viaje.presupuestoTotal) * 100), 100)
+  : 0;
 
 const handleAgregarActividad = (e) => {
   e.preventDefault();
+  if (viaje.estado === 'Finalizado') return;
   if (!nuevaActividad.descripcion.trim()) return;
 
   const itinerarioActualizado = [...viaje.itinerario];
@@ -219,6 +242,7 @@ const handleAgregarActividad = (e) => {
 };
 
 const handleEliminarActividad = (actividadId, diaIndex) => {
+  if (viaje.estado === 'Finalizado') return;
   const itinerarioActualizado = [...viaje.itinerario];
 
   itinerarioActualizado[diaIndex].actividades =
@@ -255,6 +279,7 @@ const handleEliminarActividad = (actividadId, diaIndex) => {
 };
 
 const handleEliminarGasto = (gastoId) => {
+  if (viaje.estado === 'Finalizado') return;
   const gasto = viaje.gastos.find((g) => g.id === gastoId);
 
   const gastosActualizados = viaje.gastos.filter(
@@ -306,6 +331,7 @@ const handleEliminarGasto = (gastoId) => {
 
 const handleAgregarGasto = (e) => {
   e.preventDefault();
+  if (viaje.estado === 'Finalizado') return;
 
   if (!nuevoGasto.concepto.trim() || !nuevoGasto.monto) return;
 
@@ -410,6 +436,17 @@ const handleAgregarGasto = (e) => {
   setModalGasto(false);
 };
 
+if (!viaje) {
+  return (
+    <div className="p-8 text-center">
+      <p className="text-[#324851]">No se encontró el viaje.</p>
+      <Link to="/mis-viajes" className="text-[#34675C] underline">
+        Volver a Mis Viajes
+      </Link>
+    </div>
+  );
+}
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       
@@ -469,6 +506,15 @@ const handleAgregarGasto = (e) => {
             <span className="text-slate-600">Total: <strong>${viaje.presupuestoTotal.toLocaleString()}</strong></span>
           </div>
         </div>
+        {viaje.estado !== 'Finalizado' && (
+          <button
+            type="button"
+            onClick={() => setModalFinalizar(true)}
+            className="px-5 py-3 rounded-xl bg-[#34675C] text-white font-semibold hover:bg-[#2B574E] transition"
+          >
+            Finalizar viaje
+          </button>
+        )}
       </div>
 
       {/* Selector de Pestañas */}
@@ -501,12 +547,25 @@ const handleAgregarGasto = (e) => {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold text-[#324851]">Cronograma de días</h2>
-            <button
-              onClick={() => setModalActividad(true)}
-              className="bg-[#86AC41] hover:bg-[#6F9635] text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition shadow-sm"
-            >
-              + Agregar Actividad
-            </button>
+            {viaje.estado !== 'Finalizado' && (
+              <button
+                type="button"
+                onClick={() => {
+                  setActividadAEditar(null);
+                  setNuevaActividad({
+                    diaIndex: 0,
+                    hora: '',
+                    descripcion: '',
+                    categoria: 'Excursión',
+                    costo: ''
+                  });
+                  setModalActividad(true);
+                }}
+                className="bg-[#86AC41] hover:bg-[#6F9635] text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition shadow-sm"
+              >
+                + Agregar Actividad
+              </button>
+            )}
           </div>
 
           {viaje.itinerario.length === 0 ? (
@@ -544,45 +603,51 @@ const handleAgregarGasto = (e) => {
                               {act.descripcion}
                             </span>
                           </div>
+
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-slate-500 bg-white px-2.5 py-1 rounded-full border border-slate-200">
                               {act.categoria}
                             </span>
 
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setActividadAEditar({
-                                  ...act,
-                                  diaIndex: idx
-                                });
-                                setNuevaActividad({
-                                  diaIndex: idx,
-                                  hora: act.hora,
-                                  descripcion: act.descripcion,
-                                  categoria: act.categoria,
-                                  costo: act.costo || ''
-                                });
-                                setModalActividad(true);
-                              }}
-                              className="text-slate-400 hover:text-[#34675C] p-1 transition"
-                              title="Editar actividad"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-4 h-4">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 7.125 16.875 4.5" />
-                              </svg>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setActividadAEliminar({ id: act.id, diaIndex: idx })}
-                              className="text-slate-400 hover:text-red-500 p-1 transition"
-                              title="Eliminar actividad"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-4 h-4">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0C9.91 2.834 9 3.818 9 5v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                              </svg>
-                            </button>
+                            {viaje.estado !== 'Finalizado' && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setActividadAEditar({
+                                      ...act,
+                                      diaIndex: idx
+                                    });
+                                    setNuevaActividad({
+                                      diaIndex: idx,
+                                      hora: act.hora,
+                                      descripcion: act.descripcion,
+                                      categoria: act.categoria,
+                                      costo: act.costo || ''
+                                    });
+                                    setModalActividad(true);
+                                  }}
+                                  className="text-slate-400 hover:text-[#34675C] p-1 transition"
+                                  title="Editar actividad"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-4 h-4">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 7.125 16.875 4.5" />
+                                  </svg>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setActividadAEliminar({ id: act.id, diaIndex: idx })}
+                                  className="text-slate-400 hover:text-red-500 p-1 transition"
+                                  title="Eliminar actividad"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="w-4 h-4">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0C9.91 2.834 9 3.818 9 5v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                  </svg>
+                                </button>
+                              </>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -600,6 +665,7 @@ const handleAgregarGasto = (e) => {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold text-[#324851]">Desglose de Gastos</h2>
+          {viaje.estado !== 'Finalizado' && (
           <button
             onClick={() => {
               setGastoAEditar(null);
@@ -614,6 +680,7 @@ const handleAgregarGasto = (e) => {
           >
             + Registrar Gasto
           </button>
+          )}
           </div>
 
           {/* Tarjetas de Métricas Financieras */}
@@ -665,7 +732,8 @@ const handleAgregarGasto = (e) => {
 
                     <td className="p-4">
                       <div className="flex justify-end gap-2">
-
+                      {viaje.estado !== 'Finalizado' && (
+                        <>
                         <button
                           type="button"
                           onClick={() => {
@@ -694,7 +762,8 @@ const handleAgregarGasto = (e) => {
                           <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.682-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0C9.91 2.834 9 3.818 9 5v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                         </svg>
                         </button>
-
+                        </>
+                      )}
                       </div>
                     </td>
                   </tr>
@@ -705,8 +774,41 @@ const handleAgregarGasto = (e) => {
         </div>
       )}
 
+      {modalFinalizar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full border border-slate-200 shadow-xl">
+            <h3 className="text-xl font-bold text-[#324851] mb-2">
+              ¿Finalizar viaje?
+            </h3>
+
+            <p className="text-sm text-slate-500 mb-6">
+              Una vez finalizado, no podrás modificar las actividades ni los gastos de este viaje.
+              ¿Querés continuar?
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setModalFinalizar(false)}
+                className="px-4 py-2 text-slate-600 hover:text-slate-800"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={finalizarViaje}
+                className="px-4 py-2 bg-[#34675C] hover:bg-[#2B574E] text-white rounded-xl font-semibold transition"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MODAL ACTIVIDAD */}
-      {modalActividad && (
+      {modalActividad && viaje.estado !== 'Finalizado' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full border border-slate-200 shadow-xl space-y-4">
             <h3 className="text-xl font-bold text-[#324851]">Agregar Actividad</h3>
@@ -793,7 +895,7 @@ const handleAgregarGasto = (e) => {
       )}
 
       {/* MODAL GASTO */}
-      {modalGasto && (
+      {modalGasto && viaje.estado !== 'Finalizado' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full border border-slate-200 shadow-xl space-y-4">
             <h3 className="text-xl font-bold text-[#324851]">
@@ -844,7 +946,7 @@ const handleAgregarGasto = (e) => {
       )}
 
       {/* MODAL ELIMINAR ACTIVIDAD */}
-      {actividadAEliminar && (
+      {actividadAEliminar && viaje.estado !== 'Finalizado' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full border border-slate-200 shadow-xl">
             
@@ -885,7 +987,7 @@ const handleAgregarGasto = (e) => {
         </div>
       )}
 
-      {gastoAEliminar && (
+      {gastoAEliminar && viaje.estado !== 'Finalizado' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full border border-slate-200 shadow-xl">
             <h3 className="text-xl font-bold text-[#324851] mb-2">

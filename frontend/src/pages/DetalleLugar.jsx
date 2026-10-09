@@ -10,6 +10,7 @@ function DetalleLugar() {
   const [viajes, setViajes] = useState([]);
   const [viajeSeleccionado, setViajeSeleccionado] = useState(null);
   const [esVisitado, setEsVisitado] = useState(false);
+  const [yaReseñado, setYaReseñado] = useState(false);
   const [modalReseña, setModalReseña] = useState(false);
   const [puntuacion, setPuntuacion] = useState(5);
   const [comentario, setComentario] = useState("");
@@ -45,6 +46,18 @@ useEffect(() => {
   );
 
   setEsVisitado(lugarVisitado);
+}, []);
+
+useEffect(() => {
+  const reseñasGuardadas = JSON.parse(
+    localStorage.getItem("reseñas") || "[]"
+  );
+
+  const existeReseña = reseñasGuardadas.some(
+    (reseña) => reseña.lugar === "Cataratas del Iguazú"
+  );
+
+  setYaReseñado(existeReseña);
 }, []);
 
 const cambiarFavorito = () => {
@@ -227,15 +240,23 @@ const marcarComoVisitado = () => {
                 >
                   Marcar como visitado
                 </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setModalReseña(true)}
-                  className="px-5 py-3 rounded-xl bg-[#34675C] text-white font-semibold hover:bg-[#2B574E] transition"
-                >
-                  ✓ Lugar visitado · Escribir reseña
-                </button>
-              )}
+                ) : yaReseñado ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="px-5 py-3 rounded-xl bg-[#E6E6E6] text-[#34675C] font-semibold cursor-default"
+                  >
+                     Lugar visitado - Reseña publicada
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setModalReseña(true)}
+                    className="px-5 py-3 rounded-xl bg-[#34675C] text-white font-semibold hover:bg-[#2B574E] transition"
+                  >
+                     Lugar visitado - Escribir reseña
+                  </button>
+                )}
 
             </div>
           </div>
@@ -596,11 +617,21 @@ const marcarComoVisitado = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    if (!comentario.trim()) return;
+                  if (!comentario.trim()) return;
 
-                    const reseñasGuardadas = JSON.parse(
-                      localStorage.getItem("reseñas") || "[]"
-                    );
+                  const reseñasGuardadas = JSON.parse(
+                    localStorage.getItem("reseñas") || "[]"
+                  );
+
+                  const yaExisteReseña = reseñasGuardadas.some(
+                    (reseña) => reseña.lugar === "Cataratas del Iguazú"
+                  );
+
+                  if (yaExisteReseña) {
+                    alert("Ya publicaste una reseña para este lugar.");
+                    setModalReseña(false);
+                    return;
+                  }
 
                     const nuevaReseña = {
                       id: Date.now(),
@@ -619,6 +650,8 @@ const marcarComoVisitado = () => {
                       "reseñas",
                       JSON.stringify(reseñasActualizadas)
                     );
+
+                    setYaReseñado(true);
 
                     setComentario("");
                     setPuntuacion(5);
