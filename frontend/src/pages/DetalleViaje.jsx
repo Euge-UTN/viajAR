@@ -506,15 +506,36 @@ if (!viaje) {
             <span className="text-slate-600">Total: <strong>${viaje.presupuestoTotal.toLocaleString()}</strong></span>
           </div>
         </div>
-        {viaje.estado !== 'Finalizado' && (
+
+        <div className="flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={() => setModalFinalizar(true)}
-            className="px-5 py-3 rounded-xl bg-[#34675C] text-white font-semibold hover:bg-[#2B574E] transition"
+            onClick={() =>
+              navigate('/clima', {
+                state: {
+                  lugar: viaje.destino,
+                  localidad: viaje.localidad || viaje.destino,
+                  fechaDesde: viaje.fechaInicio,
+                  fechaHasta: viaje.fechaFin
+                }
+              })
+            }
+            className="px-5 py-3 rounded-xl bg-[#86AC41] text-white font-semibold hover:bg-[#6F9635] transition"
           >
-            Finalizar viaje
+            Consultar clima
           </button>
-        )}
+
+          {viaje.estado !== 'Finalizado' && (
+            <button
+              type="button"
+              onClick={() => setModalFinalizar(true)}
+              className="px-5 py-3 rounded-xl bg-[#34675C] text-white font-semibold hover:bg-[#2B574E] transition"
+            >
+              Finalizar viaje
+            </button>
+          )}
+        </div>
+
       </div>
 
       {/* Selector de Pestañas */}

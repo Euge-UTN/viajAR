@@ -53,6 +53,12 @@ function Perfil({ usuario }) {
       nombre: "Crítico viajero",
       descripcion: "Publicaste tu primera reseña.",
       obtenida: reseñas.length >= 1
+    },
+    {
+      id: 5,
+      nombre: "Gran explorador",
+      descripcion: "Visitaste 10 lugares.",
+      obtenida: lugaresVisitados.length >= 10
     }
   ];
 
@@ -110,9 +116,36 @@ function Perfil({ usuario }) {
                 Diario de viajero
               </p>
 
-                <h1 className="text-3xl sm:text-4xl font-bold text-[#324851]">
-                {usuario?.nombre || "Mi perfil"}
-                </h1>
+
+            <h1 className="text-3xl sm:text-4xl font-bold text-[#324851]">
+              {usuario?.nombre || "Mi perfil"}
+            </h1>
+
+            <div className="flex items-center gap-1 mt-2">
+              {[1, 2, 3, 4, 5].map((estrella) => {
+                const medallasObtenidas = medallas.filter(
+                  (medalla) => medalla.obtenida
+                ).length;
+
+                return (
+                  <span
+                    key={estrella}
+                    className={`text-xl ${
+                      estrella <= medallasObtenidas
+                        ? "text-[#86AC41]"
+                        : "text-gray-300"
+                    }`}
+                  >
+                    ★
+                  </span>
+                );
+              })}
+
+              <span className="text-sm text-[#46565A] ml-2">
+                {medallas.filter((medalla) => medalla.obtenida).length} de 5 estrellas
+              </span>
+            </div>
+
 
               <p className="mt-1 text-[#46565A]">
                 Tu recorrido, experiencias y logros en ViajAR.

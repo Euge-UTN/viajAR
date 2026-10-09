@@ -86,6 +86,7 @@ export default function MisViajes() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [viajeAEditar, setViajeAEditar] = useState(null);
   const [viajeAEliminar, setViajeAEliminar] = useState(null);
+  const [viajeAFinalizar, setViajeAFinalizar] = useState(null);
   useEffect(() => {
     localStorage.setItem('viajes', JSON.stringify(viajes));
   }, [viajes]);
@@ -108,6 +109,20 @@ export default function MisViajes() {
     setViajeAEliminar(null);
   };
 
+  const finalizarViaje = () => {
+    if (!viajeAFinalizar) return;
+
+    const viajesActualizados = viajes.map((v) =>
+      v.id === viajeAFinalizar.id
+        ? { ...v, estado: 'Finalizado' }
+        : v
+    );
+
+    setViajes(viajesActualizados);
+    localStorage.setItem('viajes', JSON.stringify(viajesActualizados));
+    setViajeAFinalizar(null);
+  };
+  
   const generarItinerario = (fechaInicio, fechaFin) => {
   const [diaInicio, mesInicio, añoInicio] = fechaInicio.split('/');
   const [diaFin, mesFin, añoFin] = fechaFin.split('/');
@@ -229,7 +244,6 @@ export default function MisViajes() {
       {/* Tarjetas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {viajesFiltrados.map((viaje) => {
-          const porcentajeGasto = Math.min(Math.round((viaje.gastosActuales / viaje.presupuestoTotal) * 100), 100);
 
           return (
             <div
@@ -256,21 +270,6 @@ export default function MisViajes() {
                   </svg>
                   {viaje.destino}
                 </p>
-
-                <div className="space-y-1.5 pt-2 border-t border-slate-100">
-                  <div className="flex justify-between text-xs font-medium">
-                    <span className="text-slate-500">Presupuesto ejecutado</span>
-                    <span className="text-[#324851] font-bold">${viaje.gastosActuales.toLocaleString()} / ${viaje.presupuestoTotal.toLocaleString()}</span>
-                  </div>
-                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full transition-all duration-300 ${
-                        porcentajeGasto > 90 ? 'bg-red-500' : 'bg-[#86AC41]'
-                      }`}
-                      style={{ width: `${porcentajeGasto}%` }}
-                    ></div>
-                  </div>
-                </div>
               </div>
 
               <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
@@ -306,6 +305,16 @@ export default function MisViajes() {
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6 7.5h12m-10.5 0v10.75A1.75 1.75 0 009.25 20h5.5a1.75 1.75 0 001.75-1.75V7.5m-7-3h4" />
                         </svg>
                       </button>
+
+                      <button
+                        onClick={() => setViajeAFinalizar(viaje)}
+                        className="text-slate-400 hover:text-[#86AC41] p-1 transition"
+                        title="Finalizar viaje"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-4 h-4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m5 12 4 4L19 6" />
+                        </svg>
+                      </button>
                     </>
                   )}
                 </div>
@@ -314,6 +323,68 @@ export default function MisViajes() {
           );
         })}
       </div>
+
+      {viajeAFinalizar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full border border-slate-200 shadow-xl">
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[#86AC41]/10 flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.8"
+                  stroke="currentColor"
+                  className="w-5 h-5 text-[#86AC41]"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m5 12 4 4L19 6"
+                  />
+                </svg>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-bold text-[#324851]">
+                  Finalizar viaje
+                </h3>
+                <p className="text-sm text-slate-500">
+                  El viaje quedará marcado como finalizado.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-sm text-[#46565A] mb-6">
+              ¿Querés finalizar el viaje{' '}
+              <span className="font-semibold text-[#324851]">
+                {viajeAFinalizar.titulo}
+              </span>
+              ?
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setViajeAFinalizar(null)}
+                className="px-4 py-2 text-slate-600 rounded-xl hover:bg-slate-100 transition"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={finalizarViaje}
+                className="px-4 py-2 bg-[#86AC41] hover:bg-[#6F9635] text-white rounded-xl font-semibold transition"
+              >
+                Finalizar viaje
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       {/* Modal de Alta y Edición */}
       <FormViajeModal

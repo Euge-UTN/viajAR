@@ -11,6 +11,23 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+function convertirFechaInput(fecha) {
+  if (!fecha) return "";
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+    return fecha;
+  }
+
+  const partes = fecha.split("/");
+
+  if (partes.length === 3) {
+    const [dia, mes, año] = partes;
+    return `${año}-${mes.padStart(2, "0")}-${dia.padStart(2, "0")}`;
+  }
+
+  return "";
+}
+
 function Clima() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -18,8 +35,13 @@ function Clima() {
   const lugar = location.state?.lugar || "Cataratas del Iguazú";
   const localidad = location.state?.localidad || "Puerto Iguazú, Misiones";
 
-  const [fechaDesde, setFechaDesde] = useState("");
-  const [fechaHasta, setFechaHasta] = useState("");
+  const [fechaDesde, setFechaDesde] = useState(() =>
+  convertirFechaInput(location.state?.fechaDesde)
+  );
+
+  const [fechaHasta, setFechaHasta] = useState(() =>
+    convertirFechaInput(location.state?.fechaHasta)
+  );
   const [clima, setClima] = useState(null);
   const [error, setError] = useState("");
 
