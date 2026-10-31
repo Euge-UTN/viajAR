@@ -1,8 +1,11 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const pool = require('./config/database');
-require('dotenv').config();
+const authRoutes = require('./routes/authRoutes');
+const verificarToken = require('./middlewares/authMiddleware');
 
 const app = express();
 
@@ -11,9 +14,20 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
+// Rutas de autenticación
+app.use('/api/auth', authRoutes);
+
 // Ruta de prueba
 app.get('/', (req, res) => {
     res.json({ mensaje: 'Servidor ViajAR funcionando correctamente' });
+});
+
+// Ruta protegida de prueba
+app.get('/api/auth/perfil', verificarToken, (req, res) => {
+    res.json({
+        mensaje: 'Acceso autorizado',
+        usuario: req.usuario
+    });
 });
 
 // Iniciar servidor
