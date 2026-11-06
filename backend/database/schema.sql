@@ -12,6 +12,7 @@ CREATE TABLE Usuario (
 
 CREATE TABLE Provincia (
     ID_Provincia SERIAL PRIMARY KEY,
+    ID_GeoRef INTEGER UNIQUE,
     Nombre VARCHAR(100) NOT NULL UNIQUE,
     Activo BOOLEAN DEFAULT TRUE
 );
@@ -43,6 +44,7 @@ CREATE TABLE Medalla (
 CREATE TABLE Localidad (
     ID_Localidad SERIAL PRIMARY KEY,
     ID_Provincia INTEGER NOT NULL,
+    ID_GeoRef BIGINT UNIQUE,
     Nombre VARCHAR(100) NOT NULL,
     Activo BOOLEAN DEFAULT TRUE,
 
