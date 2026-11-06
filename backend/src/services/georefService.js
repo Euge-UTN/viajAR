@@ -26,7 +26,10 @@ const obtenerLocalidadesGeoRef = async () => {
     do {
         const url = new URL(`${URL_GEOREF}/localidades`);
 
-        url.searchParams.set('campos', 'id,nombre,provincia.id');
+        url.searchParams.set(
+            'campos',
+            'id,nombre,categoria,localidad_censal.id,provincia.id'
+        );
         url.searchParams.set('max', limite);
         url.searchParams.set('inicio', inicio);
 
@@ -98,24 +101,35 @@ const importarLocalidades = async () => {
                 const posicion = parametros.length;
 
                 valores.push(
-                    `($${posicion + 1}, $${posicion + 2}, $${posicion + 3}, TRUE)`
+                    `($${posicion + 1}, $${posicion + 2}, $${posicion + 3}, $${posicion + 4}, $${posicion + 5}, TRUE)`
                 );
 
                 parametros.push(
                     localidad.nombre,
                     idProvincia,
-                    localidad.id
+                    localidad.id,
+                    localidad.categoria || null,
+                    localidad.localidad_censal?.id || null
                 );
             }
 
             await conexion.query(
-                `INSERT INTO localidad
-                    (nombre, id_provincia, id_georef, activo)
-                 VALUES ${valores.join(', ')}
-                 ON CONFLICT (id_georef)
-                 DO UPDATE SET
+               `INSERT INTO localidad
+                    (
+                        nombre,
+                        id_provincia,
+                        id_georef,
+                        categoria,
+                        id_localidad_censal_georef,
+                        activo
+                    )
+                VALUES ${valores.join(', ')}
+                ON CONFLICT (id_georef)
+                DO UPDATE SET
                     nombre = EXCLUDED.nombre,
                     id_provincia = EXCLUDED.id_provincia,
+                    categoria = EXCLUDED.categoria,
+                    id_localidad_censal_georef = EXCLUDED.id_localidad_censal_georef,
                     activo = TRUE`,
                 parametros
             );

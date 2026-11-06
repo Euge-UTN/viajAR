@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const pool = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 const verificarToken = require('./middlewares/authMiddleware');
+const lugarRoutes = require('./routes/lugarRoutes');
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(morgan('dev'));
 
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
+app.use('/api/lugares', lugarRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
