@@ -1,0 +1,2 @@
+ALTER TABLE provincia
+ADD COLUMN id_georef INTEGER UNIQUE;

@@ -7,6 +7,8 @@ const pool = require('./config/database');
 const authRoutes = require('./routes/authRoutes');
 const verificarToken = require('./middlewares/authMiddleware');
 const lugarRoutes = require('./routes/lugarRoutes');
+const cron = require('node-cron');
+const { actualizarGeoRef } = require('./tasks/actualizarGeoRef');
 
 const app = express();
 
@@ -37,4 +39,12 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`Servidor ViajAR escuchando en el puerto ${PORT}`);
+});
+
+// Tarea automática: actualizar datos de GeoRef todos los días a las 03:00
+cron.schedule('0 3 * * *', () => {
+    console.log('Ejecutando tarea programada de GeoRef...');
+    actualizarGeoRef();
+}, {
+    timezone: 'America/Argentina/Buenos_Aires'
 });
