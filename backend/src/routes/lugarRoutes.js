@@ -7,7 +7,8 @@ const {
     buscarLugares,
     crearLugar,
     actualizarLugar,
-    eliminarLugar
+    eliminarLugar,
+    consultarClima
 } = require('../controllers/lugarController');
 
 // Consultar todos los lugares
@@ -15,6 +16,9 @@ router.get('/', obtenerLugares);
 
 // Buscar lugares por nombre, localidad o provincia
 router.get('/buscar', buscarLugares);
+
+// Consultar el clima de un lugar turístico para una fecha
+router.get('/:id/clima', consultarClima);
 
 router.get('/:id', obtenerLugarPorId);
 

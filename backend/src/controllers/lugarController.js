@@ -1,4 +1,5 @@
 const pool = require('../config/database');
+const { obtenerClima } = require('../services/climaService');
 
 // CONSULTAR TODOS LOS LUGARES
 const obtenerLugares = async (req, res) => {
@@ -244,11 +245,56 @@ const eliminarLugar = async (req, res) => {
     }
 };
 
+// CONSULTAR CLIMA DE UN LUGAR TURÍSTICO
+const consultarClima = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { fecha } = req.query;
+
+        if (!fecha || !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+            return res.status(400).json({
+                mensaje: 'Debe proporcionar una fecha válida con formato YYYY-MM-DD'
+            });
+        }
+
+        const resultado = await pool.query(`
+            SELECT latitud, longitud
+            FROM lugar_turistico_osm
+            WHERE id_osm = $1;
+        `, [id]);
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({
+                mensaje: 'Lugar turístico no encontrado'
+            });
+        }
+
+        const { latitud, longitud } = resultado.rows[0];
+
+        if (latitud === null || longitud === null) {
+            return res.status(400).json({
+                mensaje: 'El lugar turístico no tiene coordenadas registradas'
+            });
+        }
+
+        const clima = await obtenerClima(latitud, longitud, fecha);
+
+        res.status(200).json(clima);
+
+    } catch (error) {
+        console.error('Error al consultar el clima:', error.message);
+        res.status(500).json({
+            mensaje: 'Error al consultar el clima del destino turístico'
+        });
+    }
+};
+
 module.exports = {
     obtenerLugares,
     obtenerLugarPorId,
     buscarLugares,
     crearLugar,
     actualizarLugar,
-    eliminarLugar
+    eliminarLugar,
+    consultarClima
 };
