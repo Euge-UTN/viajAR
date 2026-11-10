@@ -9,6 +9,8 @@ const verificarToken = require('./middlewares/authMiddleware');
 const lugarRoutes = require('./routes/lugarRoutes');
 const cron = require('node-cron');
 const { actualizarGeoRef } = require('./tasks/actualizarGeoRef');
+const viajeRoutes = require('./routes/viajeRoutes');
+const itinerarioRoutes = require('./routes/itinerarioRoutes');
 
 const app = express();
 
@@ -20,6 +22,8 @@ app.use(morgan('dev'));
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
 app.use('/api/lugares', lugarRoutes);
+app.use('/api/viajes', verificarToken, viajeRoutes);
+app.use('/api/itinerarios', verificarToken, itinerarioRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
