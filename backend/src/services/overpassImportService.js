@@ -83,6 +83,7 @@ const importarLugaresProvincia = async (codigoProvincia) => {
 // JURISDICCIONES DE ARGENTINA
 const provincias = [
     { nombre: 'Ciudad Autónoma de Buenos Aires', codigo: 'AR-C' },
+    { nombre: 'Buenos Aires', codigo: 'AR-B' },
     { nombre: 'Catamarca', codigo: 'AR-K' },
     { nombre: 'Chaco', codigo: 'AR-H' },
     { nombre: 'Chubut', codigo: 'AR-U' },

@@ -9,7 +9,7 @@ const obtenerLugaresOSM = async (codigoProvincia) => {
 
             area["ISO3166-2"="${codigoProvincia}"]["admin_level"="4"]->.provincia;
 
-            nwr["tourism"~"^(attraction|museum|viewpoint|theme_park|zoo|aquarium|gallery|artwork|picnic_site)$"]["name"](area.provincia);
+            nwr["tourism"~"^(attraction|museum|viewpoint|theme_park|zoo|aquarium|gallery|artwork)$"]["name"](area.provincia);
 
             out center tags 20;
         `;

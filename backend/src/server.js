@@ -21,7 +21,7 @@ app.use(morgan('dev'));
 
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
-app.use('/api/lugares', lugarRoutes);
+app.use('/api/lugares', verificarToken, lugarRoutes);
 app.use('/api/viajes', verificarToken, viajeRoutes);
 app.use('/api/itinerarios', verificarToken, itinerarioRoutes);
 
