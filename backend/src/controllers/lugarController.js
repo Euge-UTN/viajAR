@@ -259,8 +259,8 @@ const consultarClima = async (req, res) => {
 
         const resultado = await pool.query(`
             SELECT latitud, longitud
-            FROM lugar_turistico_osm
-            WHERE id_osm = $1;
+            FROM lugar_turistico
+            WHERE id_lugar = $1 AND activo = TRUE;
         `, [id]);
 
         if (resultado.rows.length === 0) {
@@ -283,11 +283,13 @@ const consultarClima = async (req, res) => {
 
     } catch (error) {
         console.error('Error al consultar el clima:', error.message);
-        res.status(500).json({
-            mensaje: 'Error al consultar el clima del destino turístico'
+
+        res.status(error.statusCode || 500).json({
+            mensaje: error.message || 'Error al consultar el clima del destino turístico'
         });
     }
 };
+
 
 module.exports = {
     obtenerLugares,
