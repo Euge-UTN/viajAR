@@ -11,6 +11,7 @@ const cron = require('node-cron');
 const { actualizarGeoRef } = require('./tasks/actualizarGeoRef');
 const viajeRoutes = require('./routes/viajeRoutes');
 const itinerarioRoutes = require('./routes/itinerarioRoutes');
+const gastoRoutes = require('./routes/gastoRoutes');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/lugares', verificarToken, lugarRoutes);
 app.use('/api/viajes', verificarToken, viajeRoutes);
 app.use('/api/itinerarios', verificarToken, itinerarioRoutes);
+app.use('/api/gastos', verificarToken, gastoRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
