@@ -5,6 +5,30 @@ const esIdValido = (id) => {
     return /^[1-9]\d*$/.test(String(id));
 };
 
+// CONSULTAR LAS CATEGORÍAS DE GASTOS
+const obtenerCategorias = async (req, res) => {
+    try {
+        const resultado = await pool.query(`
+            SELECT
+                id_categoria,
+                nombre
+            FROM categoria_gasto
+            WHERE activo = TRUE
+            ORDER BY id_categoria ASC;
+        `);
+
+        res.json({
+            categorias: resultado.rows
+        });
+
+    } catch (error) {
+        console.error('Error al obtener las categorías:', error);
+        res.status(500).json({
+            mensaje: 'Error al obtener las categorías de gastos'
+        });
+    }
+};
+
 // REGISTRAR UN GASTO
 const crearGasto = async (req, res) => {
     try {
@@ -60,11 +84,14 @@ const crearGasto = async (req, res) => {
 
         // Verificar que el viaje pertenezca al usuario
         const viaje = await pool.query(`
-            SELECT id_viaje
+            SELECT
+                id_viaje,
+                fecha_inicio,
+                fecha_fin
             FROM viaje
             WHERE id_viaje = $1
-              AND id_usuario = $2
-              AND activo = TRUE;
+            AND id_usuario = $2
+            AND activo = TRUE;
         `, [idViaje, req.usuario.id]);
 
         if (viaje.rows.length === 0) {
@@ -223,6 +250,24 @@ const modificarGasto = async (req, res) => {
             fecha_gasto
         } = req.body;
 
+        // Verificar que el viaje pertenezca al usuario y esté activo
+        const viaje = await pool.query(`
+            SELECT
+                id_viaje,
+                fecha_inicio,
+                fecha_fin
+            FROM viaje
+            WHERE id_viaje = $1
+            AND id_usuario = $2
+            AND activo = TRUE;
+        `, [idViaje, req.usuario.id]);
+
+        if (viaje.rows.length === 0) {
+            return res.status(404).json({
+                mensaje: 'Viaje no encontrado o inactivo'
+            });
+        }
+
         // Verificar que el gasto pertenezca al usuario y al viaje
         const gasto = await pool.query(`
             SELECT id_gasto
@@ -304,6 +349,16 @@ const modificarGasto = async (req, res) => {
                     mensaje: 'La fecha debe tener el formato YYYY-MM-DD y ser válida'
                 });
             }
+
+            // Verificar que la fecha esté dentro del período del viaje
+            const fechaInicio = viaje.rows[0].fecha_inicio.toISOString().slice(0, 10);
+            const fechaFin = viaje.rows[0].fecha_fin.toISOString().slice(0, 10);
+
+            if (fecha_gasto < fechaInicio || fecha_gasto > fechaFin) {
+                return res.status(400).json({
+                    mensaje: 'La fecha del gasto debe estar dentro del período del viaje'
+                });
+            }
         }
 
         // Validar la descripción si se proporcionó
@@ -376,6 +431,21 @@ const eliminarGasto = async (req, res) => {
         if (!esIdValido(idGasto)) {
             return res.status(400).json({
                 mensaje: 'El ID del gasto no es válido'
+            });
+        }
+
+        // Verificar que el viaje pertenezca al usuario y esté activo
+        const viaje = await pool.query(`
+            SELECT id_viaje
+            FROM viaje
+            WHERE id_viaje = $1
+            AND id_usuario = $2
+            AND activo = TRUE;
+        `, [idViaje, req.usuario.id]);
+
+        if (viaje.rows.length === 0) {
+            return res.status(404).json({
+                mensaje: 'Viaje no encontrado o inactivo'
             });
         }
 
@@ -473,5 +543,6 @@ module.exports = {
     obtenerGastos,
     modificarGasto,
     eliminarGasto,
-    obtenerResumenGastos
+    obtenerResumenGastos,
+    obtenerCategorias
 };

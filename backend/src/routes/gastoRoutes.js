@@ -2,12 +2,16 @@ const express = require('express');
 const router = express.Router();
 
 const {
+    obtenerCategorias,
     crearGasto,
     obtenerGastos,
     modificarGasto,
     eliminarGasto,
     obtenerResumenGastos
 } = require('../controllers/gastoController');
+
+// Consultar las categorías de gastos
+router.get('/categorias', obtenerCategorias);
 
 // Registrar un gasto en un viaje
 router.post('/viaje/:idViaje', crearGasto);
