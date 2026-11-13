@@ -13,6 +13,7 @@ const viajeRoutes = require('./routes/viajeRoutes');
 const itinerarioRoutes = require('./routes/itinerarioRoutes');
 const gastoRoutes = require('./routes/gastoRoutes');
 const favoritoRoutes = require('./routes/favoritoRoutes');
+const resenaRoutes = require('./routes/resenaRoutes');
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use('/api/viajes', verificarToken, viajeRoutes);
 app.use('/api/itinerarios', verificarToken, itinerarioRoutes);
 app.use('/api/gastos', verificarToken, gastoRoutes);
 app.use('/api/favoritos', verificarToken, favoritoRoutes);
+app.use('/api/resenas', verificarToken, resenaRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) => {
