@@ -1,5 +1,5 @@
-
 const pool = require('../config/database');
+const { verificarMedallasViajes } = require('../services/medallaService');
 
 // CONSULTAR TODOS LOS VIAJES DEL USUARIO
 const obtenerViajes = async (req, res) => {
@@ -150,7 +150,26 @@ const actualizarViaje = async (req, res) => {
             fecha_fin,
             presupuesto,
             estado
-        } = req.body;
+        } = req.body || {};
+
+        // VERIFICAR SI EL VIAJE YA ESTÁ FINALIZADO
+        const viajeExistente = await pool.query(`
+            SELECT estado
+            FROM viaje
+            WHERE id_viaje = $1
+            AND id_usuario = $2
+            AND activo = TRUE;
+        `, [id, req.usuario.id]);
+
+        if (viajeExistente.rows.length === 0) {
+            return res.status(404).json({ mensaje: 'Viaje no encontrado' });
+        }
+
+        if (viajeExistente.rows[0].estado === 'Finalizado') {
+            return res.status(400).json({
+                mensaje: 'No se puede modificar un viaje finalizado'
+            });
+        }
 
         if (!id_localidad || !nombre || !nombre.trim() ||
             !fecha_inicio || !fecha_fin || !estado) {
@@ -202,10 +221,11 @@ const actualizarViaje = async (req, res) => {
             });
         }
 
-        res.status(200).json({
-            mensaje: 'Viaje actualizado correctamente',
-            viaje: resultado.rows[0]
-        });
+        if (resultado.rows[0].estado === 'Finalizado') {
+            await verificarMedallasViajes(req.usuario.id);
+        }
+
+        res.status(200).json({ mensaje: 'Viaje actualizado correctamente', viaje: resultado.rows[0] });
 
     } catch (error) {
         console.error('Error al actualizar viaje:', error);
@@ -220,6 +240,28 @@ const eliminarViaje = async (req, res) => {
     try {
         const { id } = req.params;
 
+        // VERIFICAR SI EL VIAJE YA ESTÁ FINALIZADO
+        const viajeExistente = await pool.query(`
+            SELECT estado
+            FROM viaje
+            WHERE id_viaje = $1
+              AND id_usuario = $2
+              AND activo = TRUE;
+        `, [id, req.usuario.id]);
+
+        if (viajeExistente.rows.length === 0) {
+            return res.status(404).json({
+                mensaje: 'Viaje no encontrado'
+            });
+        }
+
+        if (viajeExistente.rows[0].estado === 'Finalizado') {
+            return res.status(400).json({
+                mensaje: 'No se puede eliminar un viaje finalizado'
+            });
+        }
+
+        // ELIMINAR LÓGICAMENTE EL VIAJE
         const resultado = await pool.query(`
             UPDATE viaje
             SET activo = FALSE,

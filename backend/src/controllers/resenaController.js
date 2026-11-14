@@ -1,4 +1,9 @@
 const pool = require('../config/database');
+const {
+    verificarMedallasVisitas,
+    verificarMedallasResenas
+} = require('../services/medallaService');
+
 
 // VALIDAR IDENTIFICADORES
 const esIdValido = (id) => {
@@ -82,6 +87,9 @@ const crearResena = async (req, res) => {
                 mensaje: 'Ya publicaste una reseña para este lugar'
             });
         }
+
+        await verificarMedallasVisitas(req.usuario.id);
+        await verificarMedallasResenas(req.usuario.id);
 
         res.status(201).json({
             mensaje: 'Reseña publicada correctamente',
