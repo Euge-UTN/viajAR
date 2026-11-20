@@ -100,6 +100,16 @@ const crearGasto = async (req, res) => {
             });
         }
 
+        // Verificar que la fecha del gasto esté dentro del viaje
+        const fechaInicio = viaje.rows[0].fecha_inicio;
+        const fechaFin = viaje.rows[0].fecha_fin;
+
+        if (fecha_gasto < fechaInicio || fecha_gasto > fechaFin) {
+            return res.status(400).json({
+                mensaje: 'La fecha del gasto debe estar dentro del período del viaje'
+            });
+        }
+
         // Verificar que la categoría esté activa
         const categoria = await pool.query(`
             SELECT id_categoria

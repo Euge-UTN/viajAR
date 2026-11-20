@@ -40,22 +40,25 @@ const crearResena = async (req, res) => {
         }
 
         // Validar el comentario
-        if (
-            comentario !== undefined &&
-            comentario !== null &&
-            typeof comentario !== 'string'
-        ) {
-            return res.status(400).json({
-                mensaje: 'El comentario debe ser un texto válido'
-            });
+        if (comentario !== undefined && comentario !== null) {
+            if (typeof comentario !== 'string') {
+                return res.status(400).json({
+                    mensaje: 'El comentario debe ser un texto válido'
+                });
+            }
+
+            if (comentario.length > 1000) {
+                return res.status(400).json({
+                    mensaje: 'El comentario no puede superar los 1000 caracteres'
+                });
+            }
         }
 
-        // Verificar que el lugar exista y esté activo
+        // Verificar que el lugar exista
         const lugar = await pool.query(`
             SELECT id_lugar
             FROM lugar_turistico
-            WHERE id_lugar = $1
-              AND activo = TRUE;
+            WHERE id_lugar = $1;
         `, [idLugar]);
 
         if (lugar.rows.length === 0) {

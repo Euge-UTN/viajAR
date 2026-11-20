@@ -3,7 +3,11 @@ const pool = require('../config/database');
 
 // VALIDAR IDENTIFICADORES
 const esIdValido = (id) => {
-    return /^[1-9]\d*$/.test(String(id));
+    const numero = Number(id);
+
+    return /^[1-9]\d*$/.test(String(id)) &&
+        Number.isSafeInteger(numero) &&
+        numero <= 2147483647;
 };
 
 // AGREGAR UN LUGAR A FAVORITOS
