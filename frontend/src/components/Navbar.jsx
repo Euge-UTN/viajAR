@@ -7,11 +7,30 @@ export default function Navbar({ usuario, setUsuario }) {
   const location = useLocation();
   const ocultarBotonesAuth = ['/', '/login', '/registro'].includes(location.pathname);
 
-  const handleCerrarSesion = () => {
+const handleCerrarSesion = async () => {
+  const token = localStorage.getItem('token');
+
+  try {
+    if (token) {
+      await fetch('http://localhost:3000/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error);
+  } finally {
+    // Eliminar los datos guardados localmente
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario');
+
     setUsuario(null);
     setMenuAbierto(false);
     navigate('/');
-  };
+  }
+};
 
   return (
     <nav className="bg-[#3F5145] text-white shadow-sm">

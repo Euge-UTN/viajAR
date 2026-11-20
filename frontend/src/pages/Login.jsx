@@ -14,29 +14,57 @@ export default function Login({ setUsuario }) {
     return regex.test(correo);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
 
-    if (!email.trim() || !password.trim()) {
-      setError('Por favor, completá todos los campos.');
-      return;
+  if (!email.trim() || !password) {
+    setError('Por favor, completá todos los campos.');
+    return;
+  }
+
+  if (!validarEmail(email)) {
+    setError('Ingresá un correo electrónico válido.');
+    return;
+  }
+
+  try {
+    const respuesta = await fetch('http://localhost:3000/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email,
+        password
+      })
+    });
+
+    const datos = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(datos.mensaje || 'No se pudo iniciar sesión.');
     }
 
-    // Validación agregada de correo electrónico
-    if (!validarEmail(email)) {
-      setError('Ingresá un correo electrónico válido.');
-      return;
-    }
+    // Guardar el token JWT
+    localStorage.setItem('token', datos.token);
 
+    // Guardar los datos del usuario
+    localStorage.setItem('usuario', JSON.stringify(datos.usuario));
+
+    // Actualizar el usuario en la aplicación
     if (setUsuario) {
-      setUsuario({
-        email: email,
-        nombre: email.split('@')[0] || "Viajero"
-      });
+      setUsuario(datos.usuario);
     }
 
     navigate('/');
-  };
+
+  } catch (error) {
+    setError(
+      error.message || 'No se pudo conectar con el servidor.'
+    );
+  }
+};
 
   return (
     <div className="min-h-[75vh] flex items-center justify-center bg-[#F7F9F8] px-4 py-10">

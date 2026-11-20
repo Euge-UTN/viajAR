@@ -47,18 +47,45 @@ export default function Registro({ setUsuario }) {
     return Object.keys(nuevosErrores).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validarFormulario()) {
-      if (setUsuario) {
-        setUsuario({
-          nombre: nombre.trim() || email.split('@')[0] || "Viajero",
-          email: email.trim()
-        });
-      }
-      navigate('/');
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!validarFormulario()) {
+    return;
+  }
+
+  try {
+    const respuesta = await fetch('http://localhost:3000/api/auth/registro', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        nombre: nombre.trim(),
+        email: email.trim(),
+        password
+      })
+    });
+
+    const datos = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(datos.mensaje || 'No se pudo registrar el usuario.');
     }
-  };
+
+    // Informar que el registro fue exitoso
+    setErrores({
+      general: 'Cuenta creada correctamente. Ahora podés iniciar sesión.'
+    });
+
+    navigate('/login');
+
+  } catch (error) {
+    setErrores({
+      general: error.message || 'No se pudo conectar con el servidor.'
+    });
+  }
+};
 
   const limpiarError = (campo) => {
     if (errores[campo]) {
@@ -87,6 +114,11 @@ export default function Registro({ setUsuario }) {
         <div className="bg-white rounded-2xl border border-[#7DA3A1] shadow-sm p-6 sm:p-8">
 
           <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+            {errores.general && (
+            <p className="text-red-600 text-sm">
+              {errores.general}
+            </p>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-[#324851] mb-2">

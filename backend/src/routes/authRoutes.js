@@ -13,12 +13,12 @@ const {
 
 // Limitar los intentos de inicio de sesión
 const limitarIntentosLogin = rateLimit({
-    windowMs: 15 * 60 * 1000,
+    windowMs: 5 * 60 * 1000,
     limit: 5,
     standardHeaders: true,
     legacyHeaders: false,
     message: {
-        mensaje: 'Demasiados intentos de inicio de sesión. Intente nuevamente en 15 minutos.'
+        mensaje: 'Demasiados intentos de inicio de sesión. Intente nuevamente en 5 minutos.'
     }
 });
 

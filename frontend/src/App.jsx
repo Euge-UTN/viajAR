@@ -14,6 +14,46 @@ function AppContent() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
+  useEffect(() => {
+    const verificarSesion = async () => {
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        setUsuario(null);
+        return;
+      }
+
+      try {
+        const respuesta = await fetch('http://localhost:3000/api/auth/perfil', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok) {
+          throw new Error('Sesión inválida');
+        }
+
+        setUsuario(datos.usuario);
+
+        localStorage.setItem(
+          'usuario',
+          JSON.stringify(datos.usuario)
+        );
+
+      } catch (error) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('usuario');
+        setUsuario(null);
+      }
+    };
+
+    verificarSesion();
+}, []);
+
   const mostrarNavbar = true;
 
 return (
