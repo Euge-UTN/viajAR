@@ -15,6 +15,7 @@ function DetalleLugar() {
   const [puntuacion, setPuntuacion] = useState(5);
   const [comentario, setComentario] = useState("");
   const [esFavorito, setEsFavorito] = useState(false);
+  const [modalTodasResenas, setModalTodasResenas] = useState(false);
 
   const cargarViajes = () => {
   const viajesGuardados = localStorage.getItem("viajes");
@@ -304,35 +305,15 @@ const marcarComoVisitado = () => {
 
         </div>
 
-        {/* Actividades */}
+        {/* Entorno */}
         <div className="mt-10">
-          <h2 className="text-2xl font-bold text-[#324851] mb-4">
-            ¿Qué podés hacer?
-          </h2>
+          <p className="text-sm font-semibold uppercase tracking-widest text-[#34675C] mb-2">
+            Entorno
+          </p>
 
-          <div className="flex flex-wrap gap-3">
-            <span className="bg-white border border-[#7DA3A1] text-[#34675C] px-4 py-2 rounded-full">
-              Senderismo
-            </span>
-
-            <span className="bg-white border border-[#7DA3A1] text-[#34675C] px-4 py-2 rounded-full">
-              Fotografía
-            </span>
-
-            <span className="bg-white border border-[#7DA3A1] text-[#34675C] px-4 py-2 rounded-full">
-              Visita guiada
-            </span>
-          </div>
-
-          <div className="mt-6">
-            <p className="text-sm font-semibold uppercase tracking-widest text-[#34675C] mb-2">
-                Entorno
-            </p>
-
-            <span className="inline-block bg-white border border-[#7DA3A1] text-[#34675C] px-4 py-2 rounded-full">
-                Al aire libre
-            </span>
-            </div>
+          <span className="inline-block bg-white border border-[#7DA3A1] text-[#34675C] px-4 py-2 rounded-full">
+            Al aire libre
+          </span>
         </div>
 
         {/* Experiencias */}
@@ -349,8 +330,11 @@ const marcarComoVisitado = () => {
             </h2>
             </div>
 
-            <button className="text-[#34675C] font-medium hover:text-[#86AC41] transition">
-            Ver todas las reseñas →
+            <button
+                onClick={() => setModalTodasResenas(true)}
+                className="text-[#34675C] font-medium hover:text-[#86AC41] transition"
+            >
+                Ver todas las reseñas →
             </button>
         </div>
 
@@ -665,6 +649,118 @@ const marcarComoVisitado = () => {
 
             </div>
           </div>
+        )}
+
+        {/* MODAL: TODAS LAS RESEÑAS */}
+        {modalTodasResenas && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
+
+                <div className="bg-white w-full max-w-2xl max-h-[85vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+
+                    {/* ENCABEZADO */}
+                    <div className="flex items-center justify-between px-6 py-5 border-b border-[#7DA3A1]/30">
+                        <div>
+                            <h2 className="text-2xl font-semibold text-[#324851]">
+                                Reseñas de viajeros
+                            </h2>
+                            <p className="text-sm text-[#46565A] mt-1">
+                                Experiencias compartidas por otros viajeros
+                            </p>
+                        </div>
+
+                        <button
+                            onClick={() => setModalTodasResenas(false)}
+                            className="text-[#46565A] hover:text-[#324851] text-2xl transition"
+                        >
+                            &times;
+                        </button>
+                    </div>
+
+                    {/* CONTENIDO */}
+                    <div className="overflow-y-auto p-6 space-y-5">
+
+                        {/* RESUMEN */}
+                        <div className="bg-[#F7F9F8] rounded-2xl p-5">
+                            <p className="text-sm text-[#46565A]">
+                                Valoración general
+                            </p>
+
+                            <div className="flex items-center gap-3 mt-2">
+                                <span className="text-4xl font-bold text-[#324851]">
+                                    4.5
+                                </span>
+
+                                <div>
+                                    <div className="text-[#86AC41] text-xl">
+                                        ★★★★★
+                                    </div>
+                                    <p className="text-sm text-[#46565A]">
+                                        2 reseñas publicadas
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* RESEÑA 1 */}
+                        <div className="border border-[#7DA3A1]/30 rounded-2xl p-5">
+                            <div className="flex justify-between items-start gap-3">
+                                <div>
+                                    <h3 className="font-semibold text-[#324851]">
+                                        Juan
+                                    </h3>
+                                    <p className="text-xs text-[#46565A]">
+                                        15 de noviembre de 2026
+                                    </p>
+                                </div>
+
+                                <span className="text-[#86AC41]">
+                                    ★★★★★
+                                </span>
+                            </div>
+
+                            <p className="text-[#46565A] mt-3 text-sm leading-relaxed">
+                                Un lugar increíble para conocer y disfrutar de la
+                                naturaleza. La experiencia fue muy linda.
+                            </p>
+                        </div>
+
+                        {/* RESEÑA 2 */}
+                        <div className="border border-[#7DA3A1]/30 rounded-2xl p-5">
+                            <div className="flex justify-between items-start gap-3">
+                                <div>
+                                    <h3 className="font-semibold text-[#324851]">
+                                        Ana
+                                    </h3>
+                                    <p className="text-xs text-[#46565A]">
+                                        12 de noviembre de 2026
+                                    </p>
+                                </div>
+
+                                <span className="text-[#86AC41]">
+                                    ★★★★☆
+                                </span>
+                            </div>
+
+                            <p className="text-[#46565A] mt-3 text-sm leading-relaxed">
+                                Una experiencia muy linda y con muchos lugares
+                                para recorrer. Sin dudas volvería a visitar este destino.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    {/* PIE */}
+                    <div className="px-6 py-4 border-t border-[#7DA3A1]/30 flex justify-end">
+                        <button
+                            onClick={() => setModalTodasResenas(false)}
+                            className="bg-[#34675C] hover:bg-[#324851] text-white px-6 py-2.5 rounded-xl transition"
+                        >
+                            Cerrar
+                        </button>
+                    </div>
+
+                </div>
+            </div>
         )}
       </div>
     </div>
