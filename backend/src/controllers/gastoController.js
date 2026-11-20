@@ -65,7 +65,7 @@ const crearGasto = async (req, res) => {
         }
 
         // Validar el monto
-        if (!Number.isFinite(Number(monto)) || Number(monto) <= 0) {
+        if (!Number.isFinite(Number(monto)) || Number(monto) < 0) {
             return res.status(400).json({
                 mensaje: 'El monto debe ser un número mayor a cero'
             });
@@ -86,8 +86,8 @@ const crearGasto = async (req, res) => {
         const viaje = await pool.query(`
             SELECT
                 id_viaje,
-                fecha_inicio,
-                fecha_fin
+                TO_CHAR(fecha_inicio, 'YYYY-MM-DD') AS fecha_inicio,
+                TO_CHAR(fecha_fin, 'YYYY-MM-DD') AS fecha_fin
             FROM viaje
             WHERE id_viaje = $1
             AND id_usuario = $2

@@ -5,6 +5,11 @@ const pool = require('../src/config/database');
 const ejecutarMigraciones = async () => {
     const carpetaMigraciones = path.join(__dirname, '../database/migrations');
 
+    // Verificar que exista la carpeta de migraciones
+    if (!fs.existsSync(carpetaMigraciones)) {
+        throw new Error('No se encontró la carpeta de migraciones');
+    }
+
     // Obtener archivos SQL ordenados por nombre
     const archivos = fs.readdirSync(carpetaMigraciones)
         .filter(archivo => archivo.endsWith('.sql'))
@@ -13,6 +18,18 @@ const ejecutarMigraciones = async () => {
     const client = await pool.connect();
 
     try {
+        // Crear la tabla de control si no existe
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS migraciones (
+                id_migracion SERIAL PRIMARY KEY,
+                nombre_archivo VARCHAR(255) NOT NULL UNIQUE,
+                fecha_aplicacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        console.log('Tabla de migraciones verificada.');
+
+        // Ejecutar las migraciones en orden
         for (const archivo of archivos) {
 
             // Verificar si la migración ya fue aplicada
@@ -27,7 +44,7 @@ const ejecutarMigraciones = async () => {
                 continue;
             }
 
-            // Leer el contenido del archivo
+            // Leer el archivo SQL
             const rutaArchivo = path.join(carpetaMigraciones, archivo);
             const sql = fs.readFileSync(rutaArchivo, 'utf8');
 
@@ -37,7 +54,7 @@ const ejecutarMigraciones = async () => {
                 // Ejecutar la migración
                 await client.query(sql);
 
-                // Registrar la migración como aplicada
+                // Registrar la migración aplicada
                 await client.query(`
                     INSERT INTO migraciones (nombre_archivo)
                     VALUES ($1);
