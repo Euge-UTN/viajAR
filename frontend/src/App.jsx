@@ -9,49 +9,54 @@ function AppContent() {
   const location = useLocation();
 
   const [usuario, setUsuario] = useState(null);
+  const [cargandoSesion, setCargandoSesion] = useState(true);
   
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  useEffect(() => {
-    const verificarSesion = async () => {
-      const token = localStorage.getItem('token');
+useEffect(() => {
+  const verificarSesion = async () => {
+    const token = localStorage.getItem('token');
 
-      if (!token) {
-        setUsuario(null);
-        return;
-      }
+    if (!token) {
+      setUsuario(null);
+      setCargandoSesion(false);
+      return;
+    }
 
-      try {
-        const respuesta = await fetch('http://localhost:3000/api/auth/perfil', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        const datos = await respuesta.json();
-
-        if (!respuesta.ok) {
-          throw new Error('Sesión inválida');
+    try {
+      const respuesta = await fetch('http://localhost:3000/api/auth/perfil', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
+      });
 
-        setUsuario(datos.usuario);
+      const datos = await respuesta.json();
 
-        localStorage.setItem(
-          'usuario',
-          JSON.stringify(datos.usuario)
-        );
-
-      } catch (error) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('usuario');
-        setUsuario(null);
+      if (!respuesta.ok) {
+        throw new Error('Sesión inválida');
       }
-    };
 
-    verificarSesion();
+      setUsuario(datos.usuario);
+
+      localStorage.setItem(
+        'usuario',
+        JSON.stringify(datos.usuario)
+      );
+
+    } catch (error) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      setUsuario(null);
+
+    } finally {
+      setCargandoSesion(false);
+    }
+  };
+
+  verificarSesion();
 }, []);
 
   const mostrarNavbar = true;
@@ -61,7 +66,11 @@ return (
       {mostrarNavbar && <Navbar usuario={usuario} setUsuario={setUsuario} />}
 
       <main className="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
-        <AppRoutes usuario={usuario} setUsuario={setUsuario} />
+        <AppRoutes
+        usuario={usuario}
+        setUsuario={setUsuario}
+        cargandoSesion={cargandoSesion}
+      />
       </main>
 
       <Footer />

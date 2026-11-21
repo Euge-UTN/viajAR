@@ -10,6 +10,7 @@ const esIdValido = (id) => {
     return /^[1-9]\d*$/.test(String(id));
 };
 
+
 // PUBLICAR UNA RESEÑA
 const crearResena = async (req, res) => {
     try {
@@ -94,18 +95,19 @@ const crearResena = async (req, res) => {
         await verificarMedallasVisitas(req.usuario.id);
         await verificarMedallasResenas(req.usuario.id);
 
-        res.status(201).json({
+        return res.status(201).json({
             mensaje: 'Reseña publicada correctamente',
             resena: resultado.rows[0]
         });
 
     } catch (error) {
         console.error('Error al publicar reseña:', error);
-        res.status(500).json({
+        return res.status(500).json({
             mensaje: 'Error al publicar la reseña'
         });
     }
 };
+
 
 // CONSULTAR LAS RESEÑAS DE UN LUGAR
 const obtenerResenasPorLugar = async (req, res) => {
@@ -118,6 +120,18 @@ const obtenerResenasPorLugar = async (req, res) => {
                 mensaje: 'El ID del lugar no es válido'
             });
         }
+
+        // Obtener el número de página
+        const pagina = Number(req.query.pagina || 1);
+        const limite = 5;
+
+        if (!Number.isInteger(pagina) || pagina < 1) {
+            return res.status(400).json({
+                mensaje: 'El número de página no es válido'
+            });
+        }
+
+        const offset = (pagina - 1) * limite;
 
         // Verificar que el lugar exista y esté activo
         const lugar = await pool.query(`
@@ -133,7 +147,7 @@ const obtenerResenasPorLugar = async (req, res) => {
             });
         }
 
-        // Consultar las reseñas del lugar
+        // Consultar las reseñas de la página solicitada
         const resultado = await pool.query(`
             SELECT
                 r.id_resena,
@@ -146,10 +160,11 @@ const obtenerResenasPorLugar = async (req, res) => {
             INNER JOIN usuario u
                 ON r.id_usuario = u.id_usuario
             WHERE r.id_lugar = $1
-            ORDER BY r.fecha_creacion DESC;
-        `, [idLugar]);
+            ORDER BY r.fecha_creacion DESC
+            LIMIT $2 OFFSET $3;
+        `, [idLugar, limite, offset]);
 
-        // Calcular la valoración promedio
+        // Calcular la valoración promedio y cantidad total
         const promedio = await pool.query(`
             SELECT
                 ROUND(AVG(puntuacion), 2) AS valoracion_promedio,
@@ -158,18 +173,32 @@ const obtenerResenasPorLugar = async (req, res) => {
             WHERE id_lugar = $1;
         `, [idLugar]);
 
-        res.status(200).json({
+        const cantidadResenas = Number(
+            promedio.rows[0].cantidad_resenas
+        );
+
+        const totalPaginas = Math.ceil(cantidadResenas / limite);
+
+        return res.status(200).json({
             resenas: resultado.rows,
-            valoracion: promedio.rows[0]
+            valoracion: promedio.rows[0],
+            paginacion: {
+                paginaActual: pagina,
+                limite,
+                totalResenas: cantidadResenas,
+                totalPaginas
+            }
         });
 
     } catch (error) {
         console.error('Error al consultar reseñas:', error);
-        res.status(500).json({
+
+        return res.status(500).json({
             mensaje: 'Error al consultar las reseñas'
         });
     }
 };
+
 
 // CONSULTAR LAS RESEÑAS DEL USUARIO
 const obtenerResenas = async (req, res) => {
@@ -189,17 +218,18 @@ const obtenerResenas = async (req, res) => {
             ORDER BY r.fecha_creacion DESC;
         `, [req.usuario.id]);
 
-        res.status(200).json({
+        return res.status(200).json({
             resenas: resultado.rows
         });
 
     } catch (error) {
         console.error('Error al consultar reseñas del usuario:', error);
-        res.status(500).json({
+        return res.status(500).json({
             mensaje: 'Error al consultar tus reseñas'
         });
     }
 };
+
 
 // ELIMINAR UNA RESEÑA
 const eliminarResena = async (req, res) => {
@@ -254,7 +284,7 @@ const eliminarResena = async (req, res) => {
         await client.query('COMMIT');
         transaccionIniciada = false;
 
-        res.status(200).json({
+        return res.status(200).json({
             mensaje: 'Reseña eliminada correctamente'
         });
 
@@ -264,7 +294,7 @@ const eliminarResena = async (req, res) => {
         }
 
         console.error('Error al eliminar reseña:', error);
-        res.status(500).json({
+        return res.status(500).json({
             mensaje: 'Error al eliminar la reseña'
         });
 
@@ -274,6 +304,7 @@ const eliminarResena = async (req, res) => {
         }
     }
 };
+
 
 module.exports = {
     crearResena,
